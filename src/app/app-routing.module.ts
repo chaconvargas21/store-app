@@ -8,9 +8,9 @@ const routes: Routes = [
     loadChildren: () => import('./auth/auth.module').then((m) => m.AuthModule),
   },
   {
-    path: 'shared',
+    path: 'store',
     loadChildren: () =>
-      import('./shared/shared.module').then((m) => m.SharedModule),
+      import('./store/store.module').then((m) => m.StoreModule),
     canActivate: [AuthGuard],
   },
   {

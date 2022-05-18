@@ -13,8 +13,6 @@ export class AuthService {
   login(email: string, password: string) {
     const _email = localStorage.getItem('email');
     const _password = localStorage.getItem('password');
-    console.log(email, _email);
-    console.log(password, _password);
     if (email === _email && password === _password)
       this._auth = {
         email: _email,

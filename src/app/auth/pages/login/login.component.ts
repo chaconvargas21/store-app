@@ -31,6 +31,6 @@ export class LoginComponent implements OnInit {
 
   onSubmit() {
     this.auth.login(this.email?.value,this.password?.value),
-    this.router.navigate(["./shared"])
+    this.router.navigate(["./store"])
   }
 }
