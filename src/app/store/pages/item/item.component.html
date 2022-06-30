@@ -1,0 +1,52 @@
+<div class="container mx-auto py-28">
+  <div class="grid grid-cols-2 gap-8">
+    <div class="mx-auto w-80">
+      <div
+        class="bg-cover bg-center h-80"
+        style="background-image: url(../../../../assets/cards/image2.jpg)"
+      ></div>
+    </div>
+    <div class="w-2/4">
+      <div class="mb-8">
+        <p class="text-2xl font-semibold text-gray-800">
+          Collection <br />
+          {{ this.item?.collectionId?.description | titlecase }}
+        </p>
+        <p class="text-lg font-semibold m-2.5 text-gray-800">
+          Category <br />
+          {{ this.item?.categoryId?.description | titlecase }}
+        </p>
+        <span class="text-lg font-semibold text-gray-800">
+          S./ {{ this.item?.price }}
+        </span>
+      </div>
+      <div class="mb-8">
+        <label for="sizes" class="text-lg font-semibold text-gray-800"></label>
+        <select
+          id="sizes"
+          class="text-xs font-semibold text-gray-500"
+          [value]="item?.sizeId?._id"
+        >
+          <option value="2xs">2xs</option>
+          <option value="xs">xs</option>
+          <option value="s">s</option>
+          <option value="m">m</option>
+          <option value="l">l</option>
+          <option value="x">x</option>
+          <option value="xl">xl</option>
+        </select>
+      </div>
+      <button
+        class="text-sm text-gray-800 text-center border w-full uppercase mb-8 hover: bg-opacity-50 transition-all duration-1000"
+        (click)="addItem()"
+      >
+        add to cart
+      </button>
+      <button
+        class="bg-yellow-500 text-sm text-gray-800 text-center border w-full capitalize mb-8 hover: bg-opacity-50 transition-all duration-1000"
+      >
+        <span> Buy with <i class="fa-brands fa-amazon-pay"></i> </span>
+      </button>
+    </div>
+  </div>
+</div>

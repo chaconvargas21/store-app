@@ -10,6 +10,12 @@ import { HomeComponent } from './pages/home/home.component';
 import { CollectionComponent } from './pages/collection/collection.component';
 import { ContentComponent } from './pages/content/content.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { ShoppingCartComponent } from './components/shopping-cart/shopping-cart.component';
+import { SharedModule } from '../shared/shared.module';
+import { ItemComponent } from './pages/item/item.component';
+import { CheckoutComponent } from './pages/checkout/checkout.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { SidebarCheckoutComponent } from './components/sidebar-checkout/sidebar-checkout.component';
 
 
 @NgModule({
@@ -21,11 +27,17 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
     HomeComponent,
     CollectionComponent,
     ContentComponent,
-    SidebarComponent
+    SidebarComponent,
+    ShoppingCartComponent,
+    ItemComponent,
+    CheckoutComponent,
+    SidebarCheckoutComponent
   ],
   imports: [
     CommonModule,
     StoreRoutingModule,
+    ReactiveFormsModule,
+    SharedModule
   ]
 })
 export class StoreModule { }

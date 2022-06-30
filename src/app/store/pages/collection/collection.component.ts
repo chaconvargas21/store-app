@@ -6,19 +6,24 @@ import {
   trigger,
 } from '@angular/animations';
 import { Component, OnInit } from '@angular/core';
+import { lastValueFrom } from 'rxjs';
+import { Item } from '../../interfaces/item.interface';
+import { StoreService } from '../../services/store.service';
 
 @Component({
   selector: 'app-collection',
   animations: [
     trigger('openClose', [
       // ...
-      state('open',
+      state(
+        'open',
         style({
           width: '200px',
           opacity: '1',
         })
       ),
-      state('closed',
+      state(
+        'closed',
         style({
           width: '0',
           opacity: '0',
@@ -33,11 +38,17 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./collection.component.css'],
 })
 export class CollectionComponent implements OnInit {
-  isOpen = true;
+  isOpen = false;
+  items: Item[] = [];
+  constructor(private storeService: StoreService) {}
 
-  constructor() {}
+  ngOnInit() {
+    this.getItems();
+  }
 
-  ngOnInit(): void {}
+  getItems() {
+    this.storeService.getItems().subscribe( resp => this.items = resp)
+  }
 
   toggle() {
     this.isOpen = !this.isOpen;

@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ValidatorService } from 'src/app/shared/validators/validator.service';
 import { AuthService } from '../../services/auth.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-login',
@@ -10,7 +11,12 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent implements OnInit {
-  constructor(private fb: FormBuilder, private validator: ValidatorService, private auth:AuthService, private router: Router) {}
+  constructor(
+    private fb: FormBuilder,
+    private validator: ValidatorService,
+    private auth: AuthService,
+    private router: Router
+  ) {}
 
   loginForm: FormGroup = this.fb.group({
     email: [
@@ -29,8 +35,13 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  onSubmit() {
-    this.auth.login(this.email?.value,this.password?.value),
-    this.router.navigate(["./store"])
+  login() {
+    this.auth.login(this.email?.value, this.password?.value).subscribe((ok) => {
+      if (ok) {
+        this.router.navigateByUrl('/store');
+      } else {
+        Swal.fire('Error', ok, 'error');
+      }
+    });
   }
 }

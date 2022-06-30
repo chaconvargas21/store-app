@@ -7,6 +7,8 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ValidatorService } from 'src/app/shared/validators/validator.service';
+import Swal from 'sweetalert2';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-sign-in',
@@ -17,7 +19,8 @@ export class SignInComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private validator: ValidatorService,
-    private router: Router
+    private router: Router,
+    private auth: AuthService
   ) {}
 
   signInForm: FormGroup = this.fb.group(
@@ -74,13 +77,18 @@ export class SignInComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  onSubmit() {
+  signIn() {
     if (this.signInForm.invalid) {
       this.signInForm.markAllAsTouched();
     } else {
-      localStorage.setItem('email', this.email?.value);
-      localStorage.setItem('password', this.password?.value);
-      this.router.navigate(['/login']);
+      this.auth.signup(this.firstName?.value,this.email?.value,this.password?.value)
+        .subscribe((ok)=>{
+          if( ok === true){
+            this.router.navigateByUrl('/store');
+          } else {
+            Swal.fire('Error', ok, 'error')
+          }
+        })
     }
   }
 }

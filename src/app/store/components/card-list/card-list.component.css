@@ -1,9 +1,1 @@
 
-.img-card:hover ~ .description p{
-    animation: 0.5s ease-out forwards slideIn
-}
-
-@keyframes slideIn  {
-    from {opacity: 0;}
-  to {opacity: 1;}
-}
