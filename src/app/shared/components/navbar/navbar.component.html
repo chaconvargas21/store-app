@@ -1,0 +1,54 @@
+<div class="fixed z-10 w-full">
+  <nav class="bg-transparent backdrop-blur text-white uppercase border-b border-white hover:text-gray-400 hover:bg-white px-2">
+      <div class="container flex flex-wrap justify-between items-center mx-auto">
+        <a class="flex items-center text-4xl font-semibold" routerLink="">
+          <span class="py-4"> Cursed </span>
+        </a>
+        <div class="flex items-center text-sm font-light">
+          <div class="group">
+            <a href="" class="mx-3 hover:border-b border-b-gray-400" routerLink="/store/collections/shop"><span>shop all</span></a>
+          </div>
+          <div class="group">
+            <a href="" class="mx-3 hover:border-b border-b-gray-400" routerLink="/store/pages/collection"><span>collections</span></a>
+            <div class="group-hover:block absolute hidden z-50 py-4 bg-white rounded divide-y divide-gray-100 shadow">
+              <ul class="py-1 text-gray-700">
+                <li class="py-2 px-4 hover:bg-gray-100"> collection-1</li>
+                <li class="py-2 px-4 hover:bg-gray-100"> collection-2</li>
+                <li class="py-2 px-4 hover:bg-gray-100"> collection-3</li>
+              </ul>
+            </div>
+          </div>
+          <div class="group">
+            <a href="" class=" mx-3 my-1 hover:border-b border-b-gray-400"><span>categories</span></a>
+            <div class="group-hover:block absolute hidden z-50 py-4 bg-white rounded divide-y divide-gray-100 shadow">
+              <ul class="py-1 text-gray-700">
+                <li class="py-2 px-4 hover:bg-gray-100"> new in</li>
+                <li class="py-2 px-4 hover:bg-gray-100"> tops</li>
+                <li class="py-2 px-4 hover:bg-gray-100"> jumpers</li>
+                <li class="py-2 px-4 hover:bg-gray-100"> jackets</li>
+                <li class="py-2 px-4 hover:bg-gray-100"> bottoms</li>
+                <li class="py-2 px-4 hover:bg-gray-100"> sale</li>
+                <li class="py-2 px-4 hover:bg-gray-100"> gift cards</li>
+              </ul>
+            </div>
+          </div>
+          <div class="group">
+            <a href="" class=" mx-3 my-1 hover:border-b border-b-gray-400"><span>explore</span></a>
+            <div class="group-hover:block absolute hidden z-50 py-4 bg-white rounded divide-y divide-gray-100 shadow">
+              <ul class="py-1 text-gray-700">
+                <li class="py-2 px-4 hover:bg-gray-100"> my account</li>
+                <li class="py-2 px-4 hover:bg-gray-100"> contact us</li>
+                <li class="py-2 px-4 hover:bg-gray-100"> newsletter</li>
+              </ul>
+            </div>
+          </div>
+          <button class=" mx-3 my-1"><i class="fas fa-user"></i></button>
+          <button class=" mx-3 my-1"><i class="fas fa-search"></i></button>
+          <button class=" mx-3 my-1" (click)="openDialog()"><i class="fas fa-shopping-cart"></i></button>
+          <button class=" mx-3 my-1"><span>pen s/.</span><i class="fas fa-angle-down"></i></button>
+        </div>
+      </div>
+    </nav>
+</div>
+  
+  

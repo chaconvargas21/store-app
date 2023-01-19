@@ -5,19 +5,18 @@ import { HttpClientModule} from '@angular/common/http'
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { ErrorPageComponent } from './shared/pages/error-page/error-page.component';
-
+import { ToastNotificationsModule } from 'ngx-toast-notifications';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ErrorPageComponent
   ],
   imports: [
     BrowserModule,
-    BrowserAnimationsModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    BrowserAnimationsModule,
+    ToastNotificationsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

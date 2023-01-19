@@ -48,4 +48,43 @@ export class StoreService {
     );
   }
 
+  getOrder(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/order/`).pipe(
+      map((resp) => {
+        return resp;
+      }),
+      catchError((err) => of(err.error.msg))
+    );
+  }
+
+  postOrder(data: { firstName: string, lastName: string, receipt_email: string, shipping: any }): Observable<any> {
+    console.log(`${this.baseUrl}/order/`, data, {withCredentials: true})
+    return this.http.post(`${this.baseUrl}/order/`, data, {withCredentials: true}).pipe(
+      map((resp) => {
+        return resp;
+      }),
+      catchError((err) => of(err.error.msg))
+    );
+  }
+
+  sendPayment(token: string): Observable<any> {
+    console.log(`${this.baseUrl}/order/`, {token}, {withCredentials: true})
+    return this.http.patch(`${this.baseUrl}/order/`, {token}, {withCredentials: true}).pipe(
+      map((resp) => {
+        return resp;
+      }),
+      catchError((err) => of(err.error.msg))
+    );
+  }
+
+
+  confirmOrder(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/order/confirm`).pipe(
+      map((resp) => {
+        return resp;
+      }),
+      catchError((err) => of(err.error.msg))
+    );
+  }
+
 }

@@ -1,36 +1,26 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HomeComponent } from './pages/home/home.component';
-import { ContentComponent } from './pages/content/content.component';
-import { CollectionComponent } from './pages/collection/collection.component';
-import { ItemComponent } from './pages/item/item.component';
-import { CheckoutComponent } from './pages/checkout/checkout.component';
+import { StoreComponent } from './store.component';
+import { HomeComponent } from './home/home.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: HomeComponent,
+    component: StoreComponent,
     children: [
       {
-        path: 'content',
-        component: ContentComponent
+        path: '',
+        pathMatch: 'full',
+        component: HomeComponent
       },
       {
-        path: 'collection',
-        component: CollectionComponent
+        path: 'pages',
+        loadChildren: () =>import('./pages/pages.module').then((m) => m.PagesModule),
       },
       {
-        path: 'checkout',
-        component: CheckoutComponent
+        path: 'collections',
+        loadChildren: () =>import('./collections/collections.module').then((m) => m.CollectionsModule),
       },
-      {
-        path: ':id',
-        component: ItemComponent
-      },
-      {
-        path: '**',
-        redirectTo: 'content' 
-      }
     ]
   }
 ];

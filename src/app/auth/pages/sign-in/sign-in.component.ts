@@ -5,7 +5,7 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ValidatorService } from 'src/app/shared/validators/validator.service';
 import Swal from 'sweetalert2';
 import { AuthService } from '../../services/auth.service';
@@ -13,7 +13,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-sign-in',
   templateUrl: './sign-in.component.html',
-  styleUrls: ['./sign-in.component.css'],
+  styleUrls: ['./sign-in.component.scss'],
 })
 export class SignInComponent implements OnInit {
   constructor(

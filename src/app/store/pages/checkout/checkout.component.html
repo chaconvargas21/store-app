@@ -1,12 +1,11 @@
 <div class="container mx-auto p-20">
-    <div class="flex flex-row">
-        <div class="flex-1 pr-20">
-            <a class="block text-gray-600 text-4xl font-semibold uppercase py-4 mb-2" routerLink="/store/content">Cursed</a>
-            <div class="mb-4">
-                <mat-vertical-stepper #stepper>
-                    <mat-step [stepControl]="informationForm">
-                      <form [formGroup]="informationForm">
+    <div class="flex">
+        <div class="flex-auto px-20">
+            <mat-stepper linear #stepper>
+                <mat-step >
+                    <form [formGroup]="infoForm" (submit)="newOrder()">
                         <ng-template matStepLabel>Information</ng-template>
+                        <!-- Express checkout -->
                         <div class="mb-4">
                             <div class="flex border border-gray-300 p-3">
                                 <button class="bg-yellow-600 text-white rounded p-2 flex-auto"><i class="fa-brands fa-paypal fa-xl"></i></button>
@@ -14,72 +13,163 @@
                                 <button class="bg-gray-900 text-white rounded p-2 flex-auto ml-2"><i class="fa-brands fa-google-pay fa-xl"></i></button>
                             </div>
                         </div>
+                        <!-- Contact information -->
                         <div class="mb-4">
                             <div class="flex justify-between mb-2">
                                 <label for="email" class="block text-sm font-medium text-gray-900">Contact information</label>
                                 <span class="text-sm font-medium text-gray-900"> Already have an account? <a href="">Log in</a> </span>
                             </div>
-                            <input type="text" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2" placeholder="Email" required>
+                            <div class="flex">
+                                <input type="text" id="firstName" formControlName="firstName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 mb-2 flex-auto" placeholder="First name" required>
+                                <input type="text" id="lastName" formControlName="lastName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 mb-2 ml-2 flex-auto" placeholder="Last name" required>    
+                            </div>
+                            <input type="text" id="email" formControlName="receipt_email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2" placeholder="Email" required>
                             <input checked id="checked-checkbox" type="checkbox" value="" class="text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 focus:ring-2 ">
                             <label for="checked-checkbox" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Email me with news and offers</label>
                         </div>
-                        <div class="mb-4">
-                            <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900">Delivery method</label>
-                            <div class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
-                                <input id="ship" type="radio" value="" name="ship" class=" text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500">
-                                <label for="ship" class="ml-2 text-sm font-medium text-gray-900"><i class="fa-solid fa-truck"></i> Ship</label>                        
+                        <!-- Delivery method -->
+                        <div formGroupName="shipping">
+                            <div class="mb-4">
+                                <label class="block mb-2 text-sm font-medium text-gray-900">Delivery method</label>
+                                <div class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                                    <input id="ship" type="radio" formControlName="name" value="ship" name="name" class=" text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500">
+                                    <label for="ship" class="ml-2 text-sm font-medium text-gray-900"><i class="fa-solid fa-truck"></i> Ship</label>                        
+                                </div>
+                                <div class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 mb-2">
+                                    <input id="pickup" type="radio" formControlName="name" value="pickup" name="name" class=" text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500">
+                                    <label for="pickup" class="ml-2 text-sm font-medium text-gray-900"><i class="fa-solid fa-shop"></i> Pick up</label>
+                                </div>
+                                <select id="carrier" formControlName="carrier" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5">
+                                    <option selected>Choose a carrier</option>
+                                    <option value="Fedex">Fedex</option>
+                                    <option value="UPS">UPS</option>
+                                    <option value="USPS">USPS</option>
+                                    <option value="Amazon">Amazon</option>
+                                </select>
                             </div>
-                            <div class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
-                                <input id="pickup" type="radio" value="" name="pickup" class=" text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500">
-                                <label for="pickup" class="ml-2 text-sm font-medium text-gray-900"><i class="fa-solid fa-shop"></i> Pick up</label>
+                            <!-- Shipping address -->
+                            <div class="mb-4">
+                                <label class="block mb-2 text-sm font-medium text-gray-900">Shipping address</label>
+                                
+                                <div formGroupName="address">
+
+                                    <select id="country" formControlName="country" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2">
+                                        <option selected>Choose a country</option>
+                                        <option value="US">United States</option>
+                                        <option value="CA">Canada</option>
+                                        <option value="FR">France</option>
+                                        <option value="DE">Germany</option>
+                                    </select>
+                                    <div class="flex">
+                                        <input type="text" id="city" formControlName="city" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-1/3 p-2.5 mb-2 flex-auto" placeholder="City" required>
+                                        <select id="state" formControlName="state" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-1/3 p-2.5 mb-2 ml-2 flex-auto">
+                                            <option selected>Choose a region</option>
+                                            <option value="PE-CUS">Cusco</option>
+                                            <option value="PE-CUS">Cusco</option>
+                                            <option value="PE-CUS">Cusco</option>
+                                            <option value="PE-CUS">Cusco</option>
+                                            <option value="PE-CUS">Cusco</option>
+                                        </select>                
+                                        <input type="text" id="postal_code" formControlName="postal_code" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 mb-2 ml-2 flex-auto" placeholder="Postal code" required>    
+                                    </div>
+                                    <input type="text" id="line1"   formControlName="line1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2" placeholder="Address" required>
+                                    <input type="text" id="line2" formControlName="line2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2" placeholder="Apartment" required>
+
+                                </div>
+                                
+                                <input type="text" id="phone" formControlName="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2" placeholder="Phone" required>
+
+                                <input checked id="checked-checkbox" type="checkbox" value="" class="text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 focus:ring-2 ">
+                                <label for="checked-checkbox" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Text me with news and offers</label>
                             </div>
                         </div>
-                        <div class="mb-4">
-                            <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900">Shipping address</label>
-                            <select id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2">
-                                <option selected>Choose a country</option>
-                                <option value="US">United States</option>
-                                <option value="CA">Canada</option>
-                                <option value="FR">France</option>
-                                <option value="DE">Germany</option>
-                            </select>
-                            <div class="flex">
-                                <input type="text" id="first_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 mb-2 flex-auto" placeholder="First name" required>
-                                <input type="text" id="last_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 mb-2 ml-2 flex-auto" placeholder="Last name" required>    
-                            </div>
-                            <input type="text" id="company" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2" placeholder="Company" required>
-                            <input type="text" id="address" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2" placeholder="Address" required>
-                            <input type="text" id="apartment" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2" placeholder="Apartment" required>
-                            <div class="flex">
-                                <input type="text" id="city" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-1/3 p-2.5 mb-2 flex-auto" placeholder="City" required>
-                                <select id="regions" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-1/3 p-2.5 mb-2 ml-2 flex-auto">
-                                    <option selected>Choose a region</option>
-                                    <option value="PE-CUS">Cusco</option>
-                                    <option value="PE-CUS">Cusco</option>
-                                    <option value="PE-CUS">Cusco</option>
-                                    <option value="PE-CUS">Cusco</option>
-                                    <option value="PE-CUS">Cusco</option>
-                                </select>                
-                                <input type="text" id="postal" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 mb-2 ml-2 flex-auto" placeholder="Postal code" required>    
-                            </div>
-                            <input type="text" id="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2" placeholder="Phone" required>
-                            <input checked id="checked-checkbox" type="checkbox" value="" class="text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 focus:ring-2 ">
-                            <label for="checked-checkbox" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Text me with news and offers</label>
+                        
+                        <div class="flex justify-between">
+                            <a class="text-gray-900 text-sm font-medium py-4" routerLink="/store/content">
+                                <span class=""> <i class="fa-solid fa-angle-left"></i> Return to cart </span>
+                            </a>
+                            <button mat-button matStepperNext type="submit" [disabled]="infoForm.invalid || infoForm.disabled"
+                            class="bg-gray-600 text-white text-sm font-medium rounded p-2">
+                                Continue to shipping
+                            </button>
                         </div>
-                        </form> 
-                    </mat-step>
-                  </mat-vertical-stepper>
-            </div>
-            <div class="flex justify-between mt-6">
-                <a class="text-gray-900 text-sm font-medium py-4" routerLink="/store/content">
-                    <span class=""> <i class="fa-solid fa-angle-left"></i> Return to cart </span>
-                </a>
-                <button class="bg-gray-600 text-white text-sm font-medium rounded p-2">
-                    Continue to shipping
-                </button>
-            </div>
+                    </form> 
+                </mat-step>
+                <!-- <mat-step>
+                    <ng-template matStepLabel>Shipping</ng-template>
+                    <div class="mb-4">
+                        <div class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-3">
+                            <div class="flex">
+                                <div class="basis-20"> Contact </div>
+                                <div class="flex-1"> example@mail.com </div>    
+                                <div class="flex-1"> {{email?.value}} </div>    
+                                <div class="basis-20">
+                                    <a>Change</a>
+                                </div>
+                            </div>
+                            <div class="flex border-t border-gray-300 mt-1 pt-1">
+                                <div class="basis-20"> Ship to </div>
+                                <div class="flex-1"> Cusco, Cusco, Peru</div>    
+                                <div class="flex-1"> {{address?.value}},{{city?.value}},{{region?.value}},{{country?.value}}</div>    
+                                <div class="basis-20">
+                                    <a>Change</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block mb-2 text-sm font-medium text-gray-900">Delivery method</label>
+                        <div class="flex bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-3">
+                            <div class="flex-1">
+                                <span><i class="fa-solid fa-circle-dot pr-3"></i>STANDARD TRACKED</span>
+                                <span><i class="fa-solid fa-circle-dot"></i> {{ deliveryMethod?.value}}</span>
+                            </div>
+                            <div>
+                                <span> PEN48.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between">
+                        <a class="text-gray-900 text-sm font-medium py-4" routerLink="/store/content">
+                            <span class=""> <i class="fa-solid fa-angle-left"></i> Return to cart </span>
+                        </a>
+                        <button mat-button matStepperNext
+                        class="bg-gray-600 text-white text-sm font-medium rounded p-2" (click)="newOrder()">
+                            Continue to shipping
+                        </button>
+                    </div>
+                </mat-step> -->
+                <mat-step >
+                    <form [formGroup]="paymentForm" (submit)="initPay()">
+                        <ng-template matStepLabel>Payment</ng-template>
+                        <div class="mb-3">
+                            <label class="block mb-2 text-sm font-medium text-gray-900">Payment</label>
+                            <!-- <input type="number" id="cardName" formControlName="cardName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2" placeholder="Name on card" required> -->
+                            <div id="cardNumber" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2"></div>
+                            <div class="flex">
+                                <div id="cardCvc" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-1/3 p-2.5 mb-2 flex-auto"></div>
+                                <div id="cardExpiry" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-1/3 p-2.5 mb-2 flex-auto"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between">
+                            <a class="text-gray-900 text-sm font-medium py-4" routerLink="/store/content">
+                                <span class=""> <i class="fa-solid fa-angle-left"></i> Return to cart </span>
+                            </a>
+                            <button type="submit" [disabled]="paymentForm.invalid || paymentForm.disabled"
+                            class="bg-gray-600 text-white text-sm font-medium rounded p-2">
+                                Continue to shipping
+                            </button>
+                        </div>
+                    </form> 
+                    <div>
+                        <p>{{paymentForm.value | json}}</p>
+                        <p>{{paymentForm.invalid | json}}</p>
+
+                    </div>
+                </mat-step>
+            </mat-stepper>
         </div>
-        <div class="flex-1 hidden md:block pl-20 border-l border-gray-400">
+        <div class="flex-auto hidden md:block px-20 border-l border-gray-400">
             <app-sidebar-checkout></app-sidebar-checkout>
         </div>
     </div>

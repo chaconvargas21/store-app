@@ -1,0 +1,18 @@
+<div class="container mx-auto py-28">
+    <div class="flex flex-col">
+      <button
+        class="text-sm font-light text-gray-500 uppercase border p-2 mb-4 self-start"
+        (click)="toggle()"
+      >
+        filter <i class="fas fa-angle-down"></i>
+      </button>
+      <div class="flex">
+        <div [@openClose]="isOpen ? 'open' : 'closed'">
+          <app-sidebar></app-sidebar>
+        </div>
+        <div class="flex-grow">
+            <app-card-list [items]="items"></app-card-list>
+        </div>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,29 @@
+/* You can add global styles to this file, and also import other style files */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@import './variables';
+@import './mixins';
+
+// @import '~@angular/material/theming';
+// @include mat-core();
+
+// .yellow-theme {
+//     $yellow-theme-primary: mat-palette($mat-yellow, 400);
+//     $yellow-theme-accent:  mat-palette($mat-yellow, 400);
+
+//     $yellow-theme: mat-light-theme($yellow-theme-primary, $yellow-theme-accent);
+
+//     @include angular-material-theme($yellow-theme);
+// }
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 251 235 / var(--tw-bg-opacity));
+}

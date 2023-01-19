@@ -1,18 +1,58 @@
-<div class="container mx-auto py-28">
-  <div class="flex flex-col">
-    <button
-      class="text-sm font-light text-gray-500 uppercase border p-2 mb-4 self-start"
-      (click)="toggle()"
-    >
-      filter <i class="fas fa-angle-down"></i>
-    </button>
-    <div class="flex">
-      <div [@openClose]="isOpen ? 'open' : 'closed'">
-        <app-sidebar></app-sidebar>
-      </div>
-      <div class="flex-grow">
-          <app-card-list [items]="items"></app-card-list>
-      </div>
+<div class="container mx-auto p-24">
+  <div class="flex flex-col text-center">
+    <div>
+      <div
+        class="image bg-cover bg-center mx-auto mb-4"
+        style="
+          background-image: url(../../../../assets/collections/collection-1.jpg);
+        "
+      ></div>
+      <p class="text-lg font-semibold uppercase text-gray-800">collection-1</p>
+      <p class="text-sm font-light text-gray-800 px-80">
+        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Reprehenderit,
+        provident qui quia fugit vitae numquam illum nobis. Laudantium magnam
+        suscipit, nihil velit temporibus architecto hic blanditiis. Repudiandae
+        quidem dignissimos provident.
+      </p>
+      <button class="bg-transparent text-sm font-light text-gray-800 border uppercase py-3 px-5 mb-4">
+        shop collection
+      </button>
     </div>
-  </div>
+    <div>
+      <div
+        class="image bg-cover bg-center mx-auto mb-4"
+        style="
+          background-image: url(../../../../assets/collections/collection-2.jpg);
+        "
+      ></div>
+      <p class="text-lg font-semibold uppercase text-gray-800">collection-1</p>
+      <p class="text-sm font-light text-gray-800 px-80">
+        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Reprehenderit,
+        provident qui quia fugit vitae numquam illum nobis. Laudantium magnam
+        suscipit, nihil velit temporibus architecto hic blanditiis. Repudiandae
+        quidem dignissimos provident.
+      </p>
+      <button class="bg-transparent text-sm font-light text-gray-800 border uppercase py-3 px-5 mb-4">
+        shop collection
+      </button>
+    </div>
+    <div>
+      <div
+        class="image bg-cover bg-center mx-auto mb-4"
+        style="
+          background-image: url(../../../../assets/collections/collection-3.jpg);
+        "
+      ></div>
+      <p class="text-lg font-semibold uppercase text-gray-800">collection-1</p>
+      <p class="text-sm font-light text-gray-800 px-80">
+        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Reprehenderit,
+        provident qui quia fugit vitae numquam illum nobis. Laudantium magnam
+        suscipit, nihil velit temporibus architecto hic blanditiis. Repudiandae
+        quidem dignissimos provident.
+      </p>
+      <button class="bg-transparent text-sm font-light text-gray-800 border uppercase py-3 px-5 mb-4">
+        shop collection
+      </button>
+    </div>
+  </div> 
 </div>
