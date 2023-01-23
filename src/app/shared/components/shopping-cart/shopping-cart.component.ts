@@ -27,10 +27,16 @@ export class ShoppingCartComponent implements OnInit {
       this.items = resp.items;
       this.totalPrice = resp.totalPrice;
     });
+  } 
+  
+  removeItemShoppingCart(id: string){
+    this.storeService.removeItemCartShopping(id).subscribe((resp) => {
+      this.getItemsShoppingCart();
+    });
   }
 
   checkout(){
-    this._router.navigate(['/store/checkout'])
+    this._router.navigate(['/store/pages/checkout'])
     this.dialogRef.close();
   }
 }

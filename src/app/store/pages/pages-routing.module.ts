@@ -10,13 +10,13 @@ const routes: Routes = [
     component: CollectionComponent
   },
   {
-    path: ':id',
-    component: ItemComponent
-  },
-  {
     path: 'checkout',
     component: CheckoutComponent
   },
+  {
+    path: ':id',
+    component: ItemComponent
+  }
 ];
 
 @NgModule({

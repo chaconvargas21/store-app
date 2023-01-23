@@ -13,6 +13,11 @@ export interface AddItemResponse {
     item: Item;    
 }
 
+export interface RemoveItemResponse {
+    ok: boolean;
+    item: Item;    
+}
+
 export interface GetItemsCartShoppingResponse {
     ok: boolean;
     items: ItemCart[];
