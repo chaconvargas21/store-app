@@ -58,7 +58,7 @@ export class StoreService {
   }
 
   getOrder(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/order/`).pipe(
+    return this.http.get(`${this.baseUrl}/order/`, {withCredentials: true}).pipe(
       map((resp) => {
         return resp;
       }),
@@ -88,7 +88,7 @@ export class StoreService {
 
 
   confirmOrder(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/order/confirm`).pipe(
+    return this.http.get(`${this.baseUrl}/order/confirm`, {withCredentials: true}).pipe(
       map((resp) => {
         return resp;
       }),

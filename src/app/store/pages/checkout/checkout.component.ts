@@ -137,13 +137,15 @@ export class CheckoutComponent implements OnInit {
   async loadDetail() {
     try {
       const { order } = await this.store.getOrder().toPromise();
-      console.log(order)
-      if (order && order.status.includes('succe')) {
-        this.paymentForm.disable();
-        this.toaster.open({
-          text: '🔴 Error con orden',
-          caption: 'Ya se ha pagado',
-        });
+      if (order) {
+        const { status } = await this.store.confirmOrder().toPromise();
+        if (status.includes('succe')) {
+          this.paymentForm.disable();
+          this.toaster.open({
+            text: '🔴 Error con orden',
+            caption: 'Ya se ha pagado',
+          });
+        }
       }
     } catch (e) {
       console.log(e);
@@ -169,7 +171,7 @@ export class CheckoutComponent implements OnInit {
       //TODO: Enviamos el token a nuesta api donde generamos (stripe) un metodo de pago basado en el token
       //TODO: tok_23213
       const { data } = await this.store.sendPayment(token.id).toPromise();
-      
+
       //TODO: Nuestra api devolver un "client_secret" que es un token unico por intencion de pago
       //TODO: SDK de stripe se encarga de verificar si el banco necesita autorizar o no
       this.STRIPE.handleCardPayment(data.client_secret)
