@@ -18,12 +18,53 @@
 //     @include angular-material-theme($yellow-theme);
 // }
 
+/* Resetting default browser styles */
 html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 251 235 / var(--tw-bg-opacity));
+body,
+ul,
+ol {
+    margin: 0;
+    padding: 0;
 }
+
+/* Box sizing border-box for all elements */
+* {
+    box-sizing: border-box;
+}
+
+/* Global typography */
+// body {
+//     font-family: Arial, sans-serif;
+//     font-size: 16px;
+//     line-height: 1.5;
+//     color: #333;
+// }
+
+/* Links */
+// a {
+//     color: #007bff;
+//     text-decoration: none;
+// }
+
+// a:hover {
+//     text-decoration: underline;
+// }
+
+/* Headings */
+// h1, h2, h3, h4, h5, h6 {
+//     font-weight: bold;
+//     margin-bottom: 10px;
+// }
+
+/* Basic layout */
+// .container {
+//     width: 100%;
+//     max-width: 1200px;
+//     margin: 0 auto;
+//     padding: 0 20px;
+// }
+
+/* Responsive media queries */
+// @media (max-width: 768px) {
+    /* Add responsive styles here */
+// }

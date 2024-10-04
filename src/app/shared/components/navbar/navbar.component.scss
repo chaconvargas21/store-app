@@ -1,0 +1,13 @@
+nav{
+    animation: stickyNav linear forwards;
+    animation-timeline: view();
+    animation-range-start: 100vh;
+    animation-range-end: 200vh;
+}
+@keyframes stickyNav {
+  100% {
+    --tw-bg-opacity: 1;
+    background-color: rgb(0 0 0 / var(--tw-bg-opacity));
+    color: rgb(255 255 255 / var(--tw-text-opacity));
+  }
+}
