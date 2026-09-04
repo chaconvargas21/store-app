@@ -4,6 +4,7 @@ import { ShoppingCartComponent } from '../shopping-cart/shopping-cart.component'
 
 @Component({
   selector: 'app-navbar',
+  standalone: false,
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })

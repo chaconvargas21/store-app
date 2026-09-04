@@ -7,6 +7,7 @@ import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-login',
+  standalone: false,
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
@@ -18,13 +19,7 @@ export class LoginComponent implements OnInit {
     private router: Router
   ) {}
 
-  loginForm: FormGroup = this.fb.group({
-    email: [
-      '',
-      [Validators.required, Validators.pattern(this.validator.emailPattern)],
-    ],
-    password: ['', [Validators.required, Validators.minLength(6)]],
-  });
+  loginForm!: FormGroup;
 
   get email() {
     return this.loginForm.get('email');
@@ -33,7 +28,15 @@ export class LoginComponent implements OnInit {
     return this.loginForm.get('password');
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.loginForm = this.fb.group({
+      email: [
+        '',
+        [Validators.required, Validators.pattern(this.validator.emailPattern)],
+      ],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+    });
+  }
 
   login() {
     this.auth.login(this.email?.value, this.password?.value).subscribe((ok) => {

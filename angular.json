@@ -67,12 +67,15 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "buildTarget": "store-app:build"
+          },
           "configurations": {
             "production": {
-              "browserTarget": "store-app:build:production"
+              "buildTarget": "store-app:build:production"
             },
             "development": {
-              "browserTarget": "store-app:build:development"
+              "buildTarget": "store-app:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -109,5 +112,8 @@
       "style": "scss"
     }
   },
-  "defaultProject": "store-app"
+  "defaultProject": "store-app",
+  "cli": {
+    "analytics": "9aa17076-413e-42b1-9001-57117043455c"
+  }
 }

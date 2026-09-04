@@ -12,6 +12,7 @@ import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-sign-in',
+  standalone: false,
   templateUrl: './sign-in.component.html',
   styleUrls: ['./sign-in.component.scss'],
 })
@@ -23,35 +24,7 @@ export class SignInComponent implements OnInit {
     private auth: AuthService
   ) {}
 
-  signInForm: FormGroup = this.fb.group(
-    {
-      email: [
-        '',
-        [Validators.required, Validators.pattern(this.validator.emailPattern)],
-      ],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      password2: ['', [Validators.required, Validators.minLength(6)]],
-      firstName: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern(this.validator.firstLastNamePattern),
-        ],
-      ],
-      lastName: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern(this.validator.firstLastNamePattern),
-        ],
-      ],
-      phoneNumber: ['', Validators.required],
-      company: ['', Validators.required],
-    },
-    {
-      validators: [this.validator.equalsFields('password', 'password2')],
-    }
-  );
+  signInForm!: FormGroup;
 
   get email() {
     return this.signInForm.get('email');
@@ -75,7 +48,37 @@ export class SignInComponent implements OnInit {
     return this.signInForm.get('company');
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.signInForm = this.fb.group(
+      {
+        email: [
+          '',
+          [Validators.required, Validators.pattern(this.validator.emailPattern)],
+        ],
+        password: ['', [Validators.required, Validators.minLength(6)]],
+        password2: ['', [Validators.required, Validators.minLength(6)]],
+        firstName: [
+          '',
+          [
+            Validators.required,
+            Validators.pattern(this.validator.firstLastNamePattern),
+          ],
+        ],
+        lastName: [
+          '',
+          [
+            Validators.required,
+            Validators.pattern(this.validator.firstLastNamePattern),
+          ],
+        ],
+        phoneNumber: ['', Validators.required],
+        company: ['', Validators.required],
+      },
+      {
+        validators: [this.validator.equalsFields('password', 'password2')],
+      }
+    );
+  }
 
   signIn() {
     if (this.signInForm.invalid) {

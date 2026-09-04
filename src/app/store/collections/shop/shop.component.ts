@@ -10,6 +10,7 @@ import { Item } from '../../interfaces/item.interface';
 import { StoreService } from '../../services/store.service';
 @Component({
   selector: 'app-shop',
+  standalone: false,
   animations: [
     trigger('openClose', [
       // ...

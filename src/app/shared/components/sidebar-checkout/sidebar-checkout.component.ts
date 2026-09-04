@@ -4,6 +4,7 @@ import { StoreService } from '../../../store/services/store.service';
 
 @Component({
   selector: 'app-sidebar-checkout',
+  standalone: false,
   templateUrl: './sidebar-checkout.component.html',
   styleUrls: ['./sidebar-checkout.component.scss'],
 })

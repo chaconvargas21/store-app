@@ -3,6 +3,7 @@ import { Item } from '../../interfaces/item.interface';
 
 @Component({
   selector: 'app-card-item',
+  standalone: false,
   templateUrl: './card-item.component.html',
   styleUrls: ['./card-item.component.scss']
 })
