@@ -11,6 +11,7 @@ import { SidebarCheckoutComponent } from './components/sidebar-checkout/sidebar-
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { FooterComponent } from './components/footer/footer.component';
+import { CarouselComponent } from './components/carousel/carousel.component';
 import { AppRoutingModule } from '../app-routing.module';
 import { StoreRoutingModule } from '../store/store-routing.module';
 
@@ -24,6 +25,7 @@ import { StoreRoutingModule } from '../store/store-routing.module';
     SidebarComponent,
     NavbarComponent,
     FooterComponent,
+    CarouselComponent,
     ErrorPageComponent
   ],
   imports: [
@@ -41,7 +43,8 @@ import { StoreRoutingModule } from '../store/store-routing.module';
     SidebarCheckoutComponent,
     SidebarComponent,
     NavbarComponent,
-    FooterComponent
+    FooterComponent,
+    CarouselComponent
   ]
 })
 export class SharedModule { }

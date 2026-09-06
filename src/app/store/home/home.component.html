@@ -1,14 +1,103 @@
 <div>
-  <div class="grid grid-rows-3 grid-flow-col gap-4 h-screen">
-    <div class="row-span-3 h-auto bg-cover bg-center"
-    style="background-image: url(./assets/grid/grid-img1.jpg)"></div>
-    <div class="row-span-1 h-auto bg-cover bg-center"
-    style="background-image: url(./assets/grid/grid-img2.jpg)"></div>
-    <div class="row-span-2 h-auto bg-cover bg-center"
-    style="background-image: url(./assets/grid/grid-img3.jpg)"></div>
-    <div class="row-span-2 h-auto bg-cover bg-center"
-    style="background-image: url(./assets/grid/grid-img3.jpg)"></div>
-    <div class="row-span-1 h-auto bg-cover bg-center"
-    style="background-image: url(./assets/grid/grid-img2.jpg)"></div>
-  </div>
+  <!-- Hero -->
+  <section
+    class="relative h-[70vh] min-h-[420px] bg-cover bg-center flex items-center"
+    style="background-image: url(./assets/images/card-1.jpg)"
+  >
+    <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+    <div class="relative container mx-auto px-6 text-white">
+      <h1 class="text-4xl sm:text-6xl font-semibold uppercase tracking-widest2 mb-4">
+        Nueva Temporada
+      </h1>
+      <p class="text-sm sm:text-base font-light max-w-md mb-8">
+        Calzado diseñado para moverte. Descubre la colección pensada para tu estilo de vida.
+      </p>
+      <a
+        routerLink="/store/collections/shop"
+        class="inline-block bg-white text-ink text-sm uppercase tracking-widest2 font-medium px-8 py-3 hover:bg-ink hover:text-white transition-colors"
+      >
+        Comprar ahora
+      </a>
+    </div>
+  </section>
+
+  <!-- Categorías destacadas -->
+  <section class="container mx-auto px-6 py-16">
+    <h2 class="text-2xl font-semibold uppercase tracking-widest2 text-ink mb-8 text-center">
+      Categorías
+    </h2>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+      <a
+        routerLink="/store/pages/collection"
+        class="group relative block aspect-[4/5] overflow-hidden bg-gray-100"
+      >
+        <div
+          class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+          style="background-image: url(./assets/images/card-1.jpg)"
+        ></div>
+        <span
+          class="absolute bottom-4 left-4 text-white text-sm uppercase tracking-widest2 font-medium"
+          >Running</span
+        >
+      </a>
+      <a
+        routerLink="/store/pages/collection"
+        class="group relative block aspect-[4/5] overflow-hidden bg-gray-100"
+      >
+        <div
+          class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+          style="background-image: url(./assets/images/card-2.jpg)"
+        ></div>
+        <span
+          class="absolute bottom-4 left-4 text-white text-sm uppercase tracking-widest2 font-medium"
+          >Casual</span
+        >
+      </a>
+      <a
+        routerLink="/store/pages/collection"
+        class="group relative block aspect-[4/5] overflow-hidden bg-gray-100"
+      >
+        <div
+          class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+          style="background-image: url(./assets/images/card-3.jpg)"
+        ></div>
+        <span
+          class="absolute bottom-4 left-4 text-white text-sm uppercase tracking-widest2 font-medium"
+          >Edición Limitada</span
+        >
+      </a>
+    </div>
+  </section>
+
+  <!-- Destacados -->
+  <section class="container mx-auto px-6 py-16">
+    <app-carousel
+      title="Destacados"
+      [images]="[
+        './assets/images/calzado-1.jpg',
+        './assets/images/calzado-2.jpg',
+        './assets/images/calzado-3.jpg',
+        './assets/images/calzado-4.jpg',
+        './assets/images/calzado-5.jpg'
+      ]"
+    ></app-carousel>
+  </section>
+
+  <!-- CTA final -->
+  <section class="bg-gray-50 py-16">
+    <div class="container mx-auto px-6 text-center">
+      <h2 class="text-2xl font-semibold uppercase tracking-widest2 text-ink mb-4">
+        Únete al club
+      </h2>
+      <p class="text-sm font-light text-gray-600 max-w-md mx-auto mb-8">
+        Recibe acceso anticipado a lanzamientos y ofertas exclusivas.
+      </p>
+      <a
+        routerLink="/store/collections/shop"
+        class="inline-block border border-ink text-ink text-sm uppercase tracking-widest2 font-medium px-8 py-3 hover:bg-ink hover:text-white transition-colors"
+      >
+        Ver catálogo
+      </a>
+    </div>
+  </section>
 </div>

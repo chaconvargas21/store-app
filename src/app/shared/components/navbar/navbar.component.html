@@ -1,14 +1,14 @@
-  <nav class="bg-white text-black uppercase shadow-md sticky z-50 top-0">
-      <div class="container flex flex-wrap justify-between items-center mx-auto">
-        <a class="flex items-center text-4xl font-semibold" routerLink="">
+  <nav class="bg-white text-ink uppercase shadow-sm sticky z-50 top-0">
+      <div class="container flex flex-wrap justify-between items-center mx-auto px-6">
+        <a class="flex items-center text-2xl font-semibold tracking-widest2" routerLink="">
           <span class="py-4"> Cursed </span>
         </a>
-        <div class="flex items-center text-sm font-light">
+        <div class="flex items-center text-xs font-medium tracking-widest2">
           <div class="group">
-            <a href="" class="mx-3 hover:border-b border-b-gray-400" routerLink="/store/collections/shop"><span>shop all</span></a>
+            <a href="" class="mx-3 py-2 hover:border-b hover:border-b-ink border-b border-b-transparent transition-colors" routerLink="/store/collections/shop"><span>shop all</span></a>
           </div>
           <div class="group">
-            <a href="" class="mx-3 hover:border-b border-b-gray-400" routerLink="/store/pages/collection"><span>collections</span></a>
+            <a href="" class="mx-3 py-2 hover:border-b hover:border-b-ink border-b border-b-transparent transition-colors" routerLink="/store/pages/collection"><span>collections</span></a>
             <div class="group-hover:block absolute hidden z-50 py-4 bg-white rounded divide-y divide-gray-100 shadow">
               <ul class="py-1 text-gray-700">
                 <li class="py-2 px-4 hover:bg-gray-100"> collection-1</li>
@@ -18,7 +18,7 @@
             </div>
           </div>
           <div class="group">
-            <a href="" class=" mx-3 my-1 hover:border-b border-b-gray-400"><span>categories</span></a>
+            <a href="" class="mx-3 py-2 hover:border-b hover:border-b-ink border-b border-b-transparent transition-colors"><span>categories</span></a>
             <div class="group-hover:block absolute hidden z-50 py-4 bg-white rounded divide-y divide-gray-100 shadow">
               <ul class="py-1 text-gray-700">
                 <li class="py-2 px-4 hover:bg-gray-100"> new in</li>
@@ -32,7 +32,7 @@
             </div>
           </div>
           <div class="group">
-            <a href="" class=" mx-3 my-1 hover:border-b border-b-gray-400"><span>explore</span></a>
+            <a href="" class="mx-3 py-2 hover:border-b hover:border-b-ink border-b border-b-transparent transition-colors"><span>explore</span></a>
             <div class="group-hover:block absolute hidden z-50 py-4 bg-white rounded divide-y divide-gray-100 shadow">
               <ul class="py-1 text-gray-700">
                 <li class="py-2 px-4 hover:bg-gray-100"> my account</li>
@@ -41,10 +41,10 @@
               </ul>
             </div>
           </div>
-          <button class=" mx-3 my-1"><i class="fas fa-user"></i></button>
-          <button class=" mx-3 my-1"><i class="fas fa-search"></i></button>
-          <button class=" mx-3 my-1" (click)="openDialog()"><i class="fas fa-shopping-cart"></i></button>
-          <button class=" mx-3 my-1"><span>pen s/.</span><i class="fas fa-angle-down"></i></button>
+          <button class="mx-3 py-2 hover:opacity-60 transition-opacity"><i class="fas fa-user"></i></button>
+          <button class="mx-3 py-2 hover:opacity-60 transition-opacity"><i class="fas fa-search"></i></button>
+          <button class="mx-3 py-2 hover:opacity-60 transition-opacity" (click)="openDialog()"><i class="fas fa-shopping-cart"></i></button>
+          <button class="mx-3 py-2 hover:opacity-60 transition-opacity"><span>pen s/.</span><i class="fas fa-angle-down"></i></button>
         </div>
       </div>
     </nav>

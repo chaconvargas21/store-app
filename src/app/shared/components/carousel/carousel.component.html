@@ -1,0 +1,37 @@
+<div class="relative">
+  <div class="flex items-end justify-between mb-6">
+    <h2 class="text-2xl font-semibold uppercase tracking-widest2 text-ink">{{ title }}</h2>
+    <div class="hidden sm:flex gap-2">
+      <button
+        type="button"
+        (click)="scroll('prev')"
+        class="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-ink hover:text-white hover:border-ink transition-colors"
+        aria-label="Anterior"
+      >
+        <i class="fas fa-chevron-left text-xs"></i>
+      </button>
+      <button
+        type="button"
+        (click)="scroll('next')"
+        class="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-ink hover:text-white hover:border-ink transition-colors"
+        aria-label="Siguiente"
+      >
+        <i class="fas fa-chevron-right text-xs"></i>
+      </button>
+    </div>
+  </div>
+
+  <div #track class="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2">
+    <div
+      *ngFor="let image of images"
+      class="snap-start shrink-0 w-64 sm:w-72 group cursor-pointer"
+    >
+      <div class="overflow-hidden bg-gray-100 aspect-square">
+        <div
+          class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+          [style.background-image]="'url(' + image + ')'"
+        ></div>
+      </div>
+    </div>
+  </div>
+</div>
