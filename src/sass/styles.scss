@@ -78,3 +78,14 @@ ol {
 // @media (max-width: 768px) {
     /* Add responsive styles here */
 // }
+/* MatSnackBar: variantes del checkout (panelClass en CheckoutComponent.notify) */
+.snackbar-success {
+  --mat-snack-bar-container-color: #15803d;
+  --mat-snack-bar-supporting-text-color: #fff;
+  --mat-snack-bar-button-color: #fff;
+}
+.snackbar-danger {
+  --mat-snack-bar-container-color: #b91c1c;
+  --mat-snack-bar-supporting-text-color: #fff;
+  --mat-snack-bar-button-color: #fff;
+}

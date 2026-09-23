@@ -5,7 +5,6 @@ import { HttpClientModule} from '@angular/common/http'
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { ToastNotificationsModule } from 'ngx-toast-notifications';
 
 @NgModule({
   declarations: [
@@ -16,7 +15,6 @@ import { ToastNotificationsModule } from 'ngx-toast-notifications';
     AppRoutingModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    ToastNotificationsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

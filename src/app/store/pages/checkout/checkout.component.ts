@@ -6,7 +6,7 @@ import { environment } from '../../../../environments/environment';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { StoreService } from '../../services/store.service';
-import { Toaster } from 'ngx-toast-notifications';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 declare global {
   interface Window {
@@ -35,7 +35,7 @@ export class CheckoutComponent implements OnInit {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private store: StoreService,
-    private toaster: Toaster
+    private snackBar: MatSnackBar
   ) {
     this.STRIPE = window.Stripe(environment.stripe_pk);
   }
@@ -142,10 +142,7 @@ export class CheckoutComponent implements OnInit {
         const { status } = await this.store.confirmOrder().toPromise();
         if (status.includes('succe')) {
           this.paymentForm.disable();
-          this.toaster.open({
-            text: '🔴 Error con orden',
-            caption: 'Ya se ha pagado',
-          });
+          this.notify('🔴 Error con orden: ya se ha pagado');
         }
       }
     } catch (e) {
@@ -161,13 +158,10 @@ export class CheckoutComponent implements OnInit {
     } catch (e) {
       this.infoForm.enable();
       const expired = e instanceof HttpErrorResponse && e.status === 401;
-      this.toaster.open({
-        text: expired
-          ? 'Iniciá sesión para pagar'
-          : 'No se pudo iniciar el checkout',
-        caption: 'ERROR',
-        type: 'danger',
-      });
+      this.notify(
+        expired ? 'Iniciá sesión para pagar' : 'No se pudo iniciar el checkout',
+        'danger'
+      );
     }
   }
 
@@ -180,39 +174,36 @@ export class CheckoutComponent implements OnInit {
     const { token, error } = await this.STRIPE.createToken(this.cardNumber);
     if (error) {
       this.paymentForm.enable();
-      this.toaster.open({ text: error.message, caption: 'ERROR', type: 'danger' });
+      this.notify(error.message, 'danger');
       return;
     }
 
     try {
       const { data } = await this.store.sendPayment(token.id).toPromise();
       if (data.status === 'succeeded') {
-        this.toaster.open({
-          text: 'Pago realizado',
-          caption: '¡Gracias por tu compra!',
-          type: 'success',
-        });
+        this.notify('Pago realizado. ¡Gracias por tu compra!', 'success');
       }
     } catch (e) {
       const status = e instanceof HttpErrorResponse ? e.status : 0;
       if (status === 402) {
         // El carrito se conserva en el backend: se puede reintentar con otra tarjeta.
         this.paymentForm.enable();
-        this.toaster.open({
-          text: 'Tarjeta rechazada',
-          caption: 'Probá con otra tarjeta',
-          type: 'danger',
-        });
+        this.notify('Tarjeta rechazada. Probá con otra tarjeta', 'danger');
         return;
       }
-      this.toaster.open({
-        text:
-          status === 401
-            ? 'Tu sesión expiró, volvé a iniciar sesión'
-            : 'Algo ocurrio mientras procesaba el pago',
-        caption: 'ERROR',
-        type: 'danger',
-      });
+      this.notify(
+        status === 401
+          ? 'Tu sesión expiró, volvé a iniciar sesión'
+          : 'Algo ocurrio mientras procesaba el pago',
+        'danger'
+      );
     }
+  }
+
+  private notify(message: string, type?: 'success' | 'danger') {
+    this.snackBar.open(message, 'Cerrar', {
+      duration: 5000,
+      panelClass: type ? `snackbar-${type}` : undefined,
+    });
   }
 }
