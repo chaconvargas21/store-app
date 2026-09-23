@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ValidatorService } from 'src/app/shared/validators/validator.service';
 import { environment } from '../../../../environments/environment';
 import { ActivatedRoute } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { StoreService } from '../../services/store.service';
 import { Toaster } from 'ngx-toast-notifications';
 
@@ -159,40 +159,57 @@ export class CheckoutComponent implements OnInit {
       await this.store.postOrder(this.infoForm.value).toPromise();
       this.createStripeElement();
     } catch (e) {
-      console.log(e);
+      this.infoForm.enable();
+      const expired = e instanceof HttpErrorResponse && e.status === 401;
+      this.toaster.open({
+        text: expired
+          ? 'Iniciá sesión para pagar'
+          : 'No se pudo iniciar el checkout',
+        caption: 'ERROR',
+        type: 'danger',
+      });
     }
   }
 
+  // El backend confirma el pago en la misma llamada (PaymentIntent con
+  // confirm: true): responde 200 si Stripe cobro y 402 si la tarjeta fue
+  // rechazada. Stripe.js solo tokeniza la tarjeta.
   async initPay(): Promise<any> {
+    this.paymentForm.disable();
+
+    const { token, error } = await this.STRIPE.createToken(this.cardNumber);
+    if (error) {
+      this.paymentForm.enable();
+      this.toaster.open({ text: error.message, caption: 'ERROR', type: 'danger' });
+      return;
+    }
+
     try {
-      this.paymentForm.disable();
-      //TODO: SDK de Stripe genera un TOKEN para la intencion de pago!
-      const { token } = await this.STRIPE.createToken(this.cardNumber);
-
-      //TODO: Enviamos el token a nuesta api donde generamos (stripe) un metodo de pago basado en el token
-      //TODO: tok_23213
       const { data } = await this.store.sendPayment(token.id).toPromise();
-
-      //TODO: Nuestra api devolver un "client_secret" que es un token unico por intencion de pago
-      //TODO: SDK de stripe se encarga de verificar si el banco necesita autorizar o no
-      this.STRIPE.handleCardPayment(data.client_secret)
-        .then(async () => {
-          //TODO: 👌 Money Money!!!
-          this.toaster.open({
-            text: 'Dinerito dineron',
-            caption: 'Yeah!',
-            type: 'success',
-          });
-
-          //TODO: Enviamos el id "localizador" de nuestra orden para decirle al backend que confirme con stripe si es verdad!
-          // await this.restService.confirmOrder(this.id)
-        })
-        .catch(() => {
-          this.toaster.open('Error con el pago');
+      if (data.status === 'succeeded') {
+        this.toaster.open({
+          text: 'Pago realizado',
+          caption: '¡Gracias por tu compra!',
+          type: 'success',
         });
+      }
     } catch (e) {
+      const status = e instanceof HttpErrorResponse ? e.status : 0;
+      if (status === 402) {
+        // El carrito se conserva en el backend: se puede reintentar con otra tarjeta.
+        this.paymentForm.enable();
+        this.toaster.open({
+          text: 'Tarjeta rechazada',
+          caption: 'Probá con otra tarjeta',
+          type: 'danger',
+        });
+        return;
+      }
       this.toaster.open({
-        text: 'Algo ocurrio mientras procesaba el pago',
+        text:
+          status === 401
+            ? 'Tu sesión expiró, volvé a iniciar sesión'
+            : 'Algo ocurrio mientras procesaba el pago',
         caption: 'ERROR',
         type: 'danger',
       });
