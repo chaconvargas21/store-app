@@ -18,7 +18,17 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  signup(name: string, email: string, password: string) {
+  // El backend responde { msg } (email duplicado, credenciales incorrectas) o,
+  // si falla express-validator, { errors: { campo: { msg } } }.
+  private errorMessage(err: any): string {
+    const body = err?.error;
+    if (body?.msg) return body.msg;
+    const firstError: any = body?.errors && Object.values(body.errors)[0];
+    return firstError?.msg || 'No se pudo conectar con el servidor';
+  }
+
+  // Devuelve true si salió bien, o el mensaje de error (string) si no.
+  signup(name: string, email: string, password: string): Observable<true | string> {
     const url = `${this.baseUrl}/auth/new`;
     const body = {
       name,
@@ -32,14 +42,13 @@ export class AuthService {
           localStorage.setItem('token', token!);
         }
       }),
-      map((resp) => {
-        return resp.ok;
-      }),
-      catchError((err) => of(err.error.msg))
+      map(() => true as const),
+      catchError((err) => of(this.errorMessage(err)))
     );
   }
 
-  login(email: string, password: string) {
+  // Devuelve true si salió bien, o el mensaje de error (string) si no.
+  login(email: string, password: string): Observable<true | string> {
     const url = `${this.baseUrl}/auth`;
     const body = {
       email,
@@ -52,10 +61,8 @@ export class AuthService {
           localStorage.setItem('token', token!);
         }
       }),
-      map((resp) => {
-        return resp.ok;
-      }),
-      catchError((err) => of(err.error.msg))
+      map(() => true as const),
+      catchError((err) => of(this.errorMessage(err)))
     );
   }
 

@@ -137,12 +137,14 @@ export class CheckoutComponent implements OnInit {
 
   async loadDetail() {
     try {
-      const { order } = await this.store.getOrder().toPromise();
-      if (order) {
-        const { status } = await this.store.confirmOrder().toPromise();
-        if (status.includes('succe')) {
+      // Solo una orden ya cobrada tiene stripeId; el staging de postOrder no,
+      // y /order/confirm respondería 500 sin él.
+      const { order } = (await this.store.getOrder().toPromise())!;
+      if (order?.stripeId) {
+        const { status } = (await this.store.confirmOrder().toPromise())!;
+        if (status === 'succeeded') {
           this.paymentForm.disable();
-          this.notify('🔴 Error con orden: ya se ha pagado');
+          this.notify('🔴 Error con orden: ya se ha pagado', 'danger');
         }
       }
     } catch (e) {
@@ -154,6 +156,10 @@ export class CheckoutComponent implements OnInit {
     try {
       this.infoForm.disable();
       await this.store.postOrder(this.infoForm.value).toPromise();
+      // postOrder reemplaza la orden de la sesión por un checkout nuevo: si
+      // loadDetail deshabilitó el pago por una orden anterior ya pagada, se
+      // vuelve a habilitar.
+      this.paymentForm.enable();
       this.createStripeElement();
     } catch (e) {
       this.infoForm.enable();

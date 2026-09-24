@@ -40,7 +40,7 @@ export class LoginComponent implements OnInit {
 
   login() {
     this.auth.login(this.email?.value, this.password?.value).subscribe((ok) => {
-      if (ok) {
+      if (ok === true) {
         this.router.navigateByUrl('/store');
       } else {
         Swal.fire('Error', ok, 'error');

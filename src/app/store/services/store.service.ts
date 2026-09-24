@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { AddItemResponse, GetItemByIdResponse, GetItemsCartShoppingResponse, GetItemsResponse, Item, ItemCart, RemoveItemResponse } from '../interfaces/item.interface';
+import { AddItemResponse, GetItemByIdResponse, GetItemsCartShoppingResponse, GetItemsResponse, Item, RemoveItemResponse } from '../interfaces/item.interface';
 import { catchError, map, Observable, of } from 'rxjs';
 
 @Injectable({
@@ -9,7 +9,7 @@ import { catchError, map, Observable, of } from 'rxjs';
 })
 export class StoreService {
   private baseUrl: string = environment.baseUrl;
-  
+
   constructor(private http: HttpClient) { }
 
   // POST/PATCH /order requieren el JWT en el header x-token (no Authorization).
@@ -17,57 +17,58 @@ export class StoreService {
     return new HttpHeaders().set('x-token', localStorage.getItem('token') || '');
   }
 
+  // Si falla, lista vacía: el catálogo simplemente no muestra productos.
   getItems(): Observable<Item[]>{
     return this.http.get<GetItemsResponse>(`${this.baseUrl}/product`).pipe(
       map((resp) => {
         return resp.products;
       }),
-      catchError((err) => of(err.error.msg))
+      catchError(() => of([]))
     );
   }
 
-  getItemById(id: string): Observable<Item>{
+  // 404 (producto inexistente) o id inválido: undefined, no el mensaje de error.
+  getItemById(id: string): Observable<Item | undefined>{
     return this.http.get<GetItemByIdResponse>(`${this.baseUrl}/product/${id}`).pipe(
       map((resp) => {
         return resp.product;
       }),
-      catchError((err) => of(err.error.msg))
+      catchError(() => of(undefined))
     );
   }
 
-  addItem(id: string): Observable<Item>{
+  // Devuelve el producto agregado, o undefined si el backend no lo encontró.
+  addItem(id: string): Observable<Item | undefined>{
     return this.http.get<AddItemResponse>(`${this.baseUrl}/cart/${id}`,{withCredentials: true}).pipe(
       map((resp) => {
         return resp.item;
       }),
-      catchError((err) => of(err.error.msg))
+      catchError(() => of(undefined))
     );
   }
 
-  removeItemCartShopping(id: string): Observable<Item>{
+  // El backend solo responde { ok } (no devuelve el producto quitado).
+  removeItemCartShopping(id: string): Observable<boolean>{
     return this.http.delete<RemoveItemResponse>(`${this.baseUrl}/cart/${id}`,{withCredentials: true}).pipe(
       map((resp) => {
-        return resp.item;
+        return resp.ok;
       }),
-      catchError((err) => of(err.error.msg))
+      catchError(() => of(false))
     );
   }
 
+  // Si falla, carrito vacío: los componentes leen items/totalPrice directamente.
   getItemsCartShopping():Observable<GetItemsCartShoppingResponse>{
     return this.http.get<GetItemsCartShoppingResponse>(`${this.baseUrl}/cart/`,{withCredentials: true}).pipe(
-      // map((resp)=>{
-      //   return resp.items
-      // }),
-      catchError((err)=> of(err.error.msg))
+      catchError(()=> of({ ok: false, items: [], totalPrice: 0 }))
     );
   }
 
-  getOrder(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/order/`, {withCredentials: true}).pipe(
-      map((resp) => {
-        return resp;
-      }),
-      catchError((err) => of(err.error.msg))
+  // { order } es la orden de la sesión: el staging de postOrder (sin stripeId)
+  // o, tras un pago exitoso, la Order ya pagada (con stripeId).
+  getOrder(): Observable<{ order: any }> {
+    return this.http.get<{ order: any }>(`${this.baseUrl}/order/`, {withCredentials: true}).pipe(
+      catchError(() => of({ order: null }))
     );
   }
 
@@ -82,13 +83,11 @@ export class StoreService {
     return this.http.patch(`${this.baseUrl}/order/`, {token}, {withCredentials: true, headers: this.authHeaders()});
   }
 
-
-  confirmOrder(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/order/confirm`, {withCredentials: true}).pipe(
-      map((resp) => {
-        return resp;
-      }),
-      catchError((err) => of(err.error.msg))
+  // Estado del PaymentIntent en Stripe. Solo tiene sentido si la orden de la
+  // sesión tiene stripeId; si no, el backend responde 500 { error }.
+  confirmOrder(): Observable<{ status: string | null }> {
+    return this.http.get<{ status: string }>(`${this.baseUrl}/order/confirm`, {withCredentials: true}).pipe(
+      catchError(() => of({ status: null }))
     );
   }
 

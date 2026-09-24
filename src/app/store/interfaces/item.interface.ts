@@ -15,7 +15,6 @@ export interface AddItemResponse {
 
 export interface RemoveItemResponse {
     ok: boolean;
-    item: Item;    
 }
 
 export interface GetItemsCartShoppingResponse {
