@@ -191,6 +191,17 @@ export class CheckoutComponent implements OnInit {
         this.notify('Tarjeta rechazada. Probá con otra tarjeta', 'danger');
         return;
       }
+      if (status === 409) {
+        // La orden ya fue pagada o hay otro intento en curso: no reintentar.
+        const message = e instanceof HttpErrorResponse ? e.error?.error : null;
+        this.notify(message || 'La orden ya está en proceso de pago', 'danger');
+        return;
+      }
+      if (status === 500) {
+        // Reintentar es seguro: el backend escribe la orden antes de cobrar,
+        // reembolsa si no pudo registrar el pago, y responde 409 si ya se pagó.
+        this.paymentForm.enable();
+      }
       this.notify(
         status === 401
           ? 'Tu sesión expiró, volvé a iniciar sesión'
