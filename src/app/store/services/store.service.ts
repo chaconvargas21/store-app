@@ -18,18 +18,18 @@ export class StoreService {
   }
 
   getItems(): Observable<Item[]>{
-    return this.http.get<GetItemsResponse>(`${this.baseUrl}/item/`).pipe(
+    return this.http.get<GetItemsResponse>(`${this.baseUrl}/product`).pipe(
       map((resp) => {
-        return resp.items;
+        return resp.products;
       }),
       catchError((err) => of(err.error.msg))
     );
   }
 
   getItemById(id: string): Observable<Item>{
-    return this.http.get<GetItemByIdResponse>(`${this.baseUrl}/item/${id}`).pipe(
+    return this.http.get<GetItemByIdResponse>(`${this.baseUrl}/product/${id}`).pipe(
       map((resp) => {
-        return resp.item;
+        return resp.product;
       }),
       catchError((err) => of(err.error.msg))
     );

@@ -1,13 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Item } from '../../interfaces/item.interface';
-
-const SHOE_IMAGES = [
-  './assets/images/calzado-1.jpg',
-  './assets/images/calzado-2.jpg',
-  './assets/images/calzado-3.jpg',
-  './assets/images/calzado-4.jpg',
-  './assets/images/calzado-5.jpg',
-];
+import { SHOE_IMAGES, shoeImage } from '../../constants/shoe-images';
 
 @Component({
   selector: 'app-card-item',
@@ -24,7 +17,7 @@ export class CardItemComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    this.imageUrl = SHOE_IMAGES[this.index % SHOE_IMAGES.length];
+    this.imageUrl = shoeImage(this.index);
   }
 
 }

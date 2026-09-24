@@ -1,34 +1,35 @@
 <div mat-dialog-title>
   <p class="text-sm font-normal text-gray-800 uppercase ml-4">
-    cart
-    <button mat-button mat-dialog-close class="float-right">x</button>
+    carrito
+    <button mat-button mat-dialog-close class="float-right" aria-label="Cerrar">x</button>
   </p>
 </div>
 <div mat-dialog-content *ngIf="items.length; else emptyTemplate" class="h-screen">
   <ul>
-    <li *ngFor="let itemCart of items" class="flex relative border-y">
-      <button (click)='removeItemShoppingCart(itemCart.item._id)'><i class="fa-solid fa-trash-can absolute top-1 right-2"></i></button>
+    <li *ngFor="let itemCart of items; let i = index" class="flex relative border-y">
+      <button (click)='removeItemShoppingCart(itemCart.item._id)' aria-label="Quitar del carrito"><i class="fa-solid fa-trash-can absolute top-1 right-2"></i></button>
       <img
-        src="../../../../assets/generic.jpg"
+        [src]="shoeImage(i)"
+        alt=""
         style="max-height: 100%; max-width: 90px"
       />
       <div class="ml-4">
         <div class="my-1.5">
           <p class="text-sm font-normal text-gray-800">
-            {{ itemCart?.item?.collectionId?.description }}
+            {{ itemCart.item.product }}
           </p>
           <small class="text-sm font-normal text-gray-500"
-            >{{ itemCart?.item?.sizeId?.description }}
+            >Talla {{ itemCart.item.size }}
           </small>
         </div>
         <div class="mb-1.5">
           <p class="text-sm font-normal text-gray-500">
-            S./ {{ itemCart?.price }}
+            S/ {{ itemCart.price }}
           </p>
         </div>
         <div class="mb-1.5">
           <button class="text-gray border px-2">+</button>
-          <button class="text-gray border px-2">{{ itemCart?.quantity }}</button>
+          <button class="text-gray border px-2">{{ itemCart.quantity }}</button>
           <button class="text-gray border px-2">-</button>
         </div>
       </div>
@@ -40,7 +41,7 @@
     class="bg-gray-600 text-sm font-normal text-white text-center uppercase w-full py-4"
     (click)="checkout()"
   >
-    checkout now . S/.{{totalPrice}}
+    pagar · S/ {{totalPrice}}
   </button>
 </div>
 
@@ -52,7 +53,7 @@
       <i class="fas fa-shopping-cart fa-2xl"></i>
     </button>
     <div class="h-1/2 w-full bg-gray-300 flex justify-center items-center">
-        <p class="text-gray-600 font-light text-2xl">Your cart is empty</p>
+        <p class="text-gray-600 font-light text-2xl">Tu carrito está vacío</p>
     </div>
     <div class="h-1/2 w-full bg-gray-200"></div>
   </div>

@@ -1,52 +1,24 @@
 <div class="container mx-auto px-6 py-16 md:py-24">
+  <h1 class="text-2xl font-semibold uppercase tracking-widest2 text-ink mb-12 text-center">
+    Colecciones
+  </h1>
   <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-    <div>
+    <div *ngFor="let collection of collections">
       <div
         class="image bg-cover bg-center mb-4"
-        style="background-image: url(./assets/images/card-1.jpg)"
+        [style.background-image]="'url(' + collection.image + ')'"
       ></div>
-      <p class="text-lg font-semibold uppercase tracking-widest2 text-ink">collection-1</p>
+      <p class="text-lg font-semibold uppercase tracking-widest2 text-ink">{{ collection.label }}</p>
       <p class="text-sm font-light text-gray-600 mt-2">
-        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Reprehenderit,
-        provident qui quia fugit vitae numquam illum nobis. Laudantium magnam
-        suscipit, nihil velit temporibus architecto hic blanditiis. Repudiandae
-        quidem dignissimos provident.
+        {{ collection.description }}
       </p>
-      <button class="bg-transparent text-sm font-medium text-ink border border-ink uppercase tracking-widest2 py-3 px-5 mt-4 hover:bg-ink hover:text-white transition-colors">
-        shop collection
-      </button>
-    </div>
-    <div>
-      <div
-        class="image bg-cover bg-center mb-4"
-        style="background-image: url(./assets/images/card-2.jpg)"
-      ></div>
-      <p class="text-lg font-semibold uppercase tracking-widest2 text-ink">collection-2</p>
-      <p class="text-sm font-light text-gray-600 mt-2">
-        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Reprehenderit,
-        provident qui quia fugit vitae numquam illum nobis. Laudantium magnam
-        suscipit, nihil velit temporibus architecto hic blanditiis. Repudiandae
-        quidem dignissimos provident.
-      </p>
-      <button class="bg-transparent text-sm font-medium text-ink border border-ink uppercase tracking-widest2 py-3 px-5 mt-4 hover:bg-ink hover:text-white transition-colors">
-        shop collection
-      </button>
-    </div>
-    <div>
-      <div
-        class="image bg-cover bg-center mb-4"
-        style="background-image: url(./assets/images/card-3.jpg)"
-      ></div>
-      <p class="text-lg font-semibold uppercase tracking-widest2 text-ink">collection-3</p>
-      <p class="text-sm font-light text-gray-600 mt-2">
-        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Reprehenderit,
-        provident qui quia fugit vitae numquam illum nobis. Laudantium magnam
-        suscipit, nihil velit temporibus architecto hic blanditiis. Repudiandae
-        quidem dignissimos provident.
-      </p>
-      <button class="bg-transparent text-sm font-medium text-ink border border-ink uppercase tracking-widest2 py-3 px-5 mt-4 hover:bg-ink hover:text-white transition-colors">
-        shop collection
-      </button>
+      <a
+        routerLink="/store/collections/shop"
+        [queryParams]="{ categoria: collection.slug }"
+        class="inline-block bg-transparent text-sm font-medium text-ink border border-ink uppercase tracking-widest2 py-3 px-5 mt-4 hover:bg-ink hover:text-white transition-colors"
+      >
+        ver colección
+      </a>
     </div>
   </div>
 </div>

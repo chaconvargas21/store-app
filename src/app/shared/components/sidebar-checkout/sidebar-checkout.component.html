@@ -1,40 +1,40 @@
 <div class="container mx-auto">
     <div class="border-b border-gray-400 pb-3 mb-3 ">
         <table width="100%">
-            <tr *ngFor="let itemCart of items">
+            <tr *ngFor="let itemCart of items; let i = index">
                 <td class="p-3 w-20">
-                    <img src="../../../../assets/cards/image.jpg"  class="border border-gray-300">
+                    <img [src]="shoeImage(i)" alt="" class="border border-gray-300">
                 </td>
                 <td class="p-3">
-                    <strong>{{itemCart?.item?.collectionId?.description}}</strong><br>  
-                    <span>{{itemCart?.item?.sizeId?.description}}</span>
+                    <strong>{{itemCart.item.product}}</strong><br>
+                    <span>Talla {{itemCart.item.size}}</span>
                 </td>
                 <td class="p-3">
-                    <span>PEN{{itemCart?.price}}</span>
+                    <span>S/ {{itemCart.price}}</span>
                 </td>
             </tr>
         </table>
     </div>
     <div class="flex border-b border-gray-400 pb-3 mb-3">
-        <input type="text" id="gift-card" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 flex-1" placeholder="Gift card or discount code" required>
+        <input type="text" id="gift-card" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 flex-1" placeholder="Cupón o código de descuento" required>
         <button class="bg-gray-600 text-white text-sm font-medium rounded ml-2 p-2">
-            Apply
+            Aplicar
         </button>
     </div>
     <div class="border-b border-gray-400 pb-3 mb-3">
         <div class="flex justify-between">
             <span class="text-sm font-medium text-gray-800">Subtotal</span>
-            <strong class="text-sm font-medium text-gray-900">PEN{{totalPrice}}</strong>
+            <strong class="text-sm font-medium text-gray-900">S/ {{totalPrice}}</strong>
         </div>
         <div class="flex justify-between">
-            <span class="text-sm font-medium text-gray-800">Shipping</span>
-            <span class="text-xs font-medium text-gray-700">Calculated at next step</span>
+            <span class="text-sm font-medium text-gray-800">Envío</span>
+            <span class="text-xs font-medium text-gray-700">Se calcula en el siguiente paso</span>
         </div>
     </div>
     <div>
         <div class="flex justify-between">
             <span class="text-sm font-medium text-gray-800">Total</span>
-            <strong class="text-xl font-medium text-gray-900">PEN{{totalPrice}}</strong>
+            <strong class="text-xl font-medium text-gray-900">S/ {{totalPrice}}</strong>
         </div> 
     </div>
 </div>

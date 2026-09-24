@@ -1,18 +1,39 @@
-<div class="container mx-auto py-28">
+<section
+  class="relative h-56 md:h-72 bg-cover bg-center flex items-center"
+  style="background-image: url(./assets/images/background-3.jpg)"
+>
+  <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+  <h1 class="relative container mx-auto px-6 text-3xl sm:text-5xl font-semibold uppercase tracking-widest2 text-white">
+    {{ title }}
+  </h1>
+</section>
+<div class="container mx-auto px-6 py-16">
     <div class="flex flex-col">
       <button
         class="text-sm font-light text-gray-500 uppercase border p-2 mb-4 self-start"
         (click)="toggle()"
       >
-        filter <i class="fas fa-angle-down"></i>
+        filtros <i class="fas fa-angle-down"></i>
       </button>
       <div class="flex">
         <div [@openClose]="isOpen ? 'open' : 'closed'">
           <app-sidebar></app-sidebar>
         </div>
         <div class="flex-grow">
-            <app-card-list [items]="items"></app-card-list>
+            <app-card-list *ngIf="items.length; else emptyTemplate" [items]="items"></app-card-list>
         </div>
       </div>
     </div>
   </div>
+
+<ng-template #emptyTemplate>
+  <div class="text-center py-16">
+    <p class="text-gray-600 font-light mb-6">No encontramos calzado para esta búsqueda.</p>
+    <a
+      routerLink="/store/collections/shop"
+      class="inline-block border border-ink text-ink text-sm uppercase tracking-widest2 font-medium px-8 py-3 hover:bg-ink hover:text-white transition-colors"
+    >
+      Ver todo
+    </a>
+  </div>
+</ng-template>

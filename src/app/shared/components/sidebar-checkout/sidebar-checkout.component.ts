@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ItemCart } from '../../interfaces/item.interface';
 import { StoreService } from '../../../store/services/store.service';
+import { shoeImage } from '../../constants/shoe-images';
 
 @Component({
   selector: 'app-sidebar-checkout',
@@ -11,6 +12,7 @@ import { StoreService } from '../../../store/services/store.service';
 export class SidebarCheckoutComponent implements OnInit {
   items: ItemCart[] = [];
   totalPrice = 0;
+  shoeImage = shoeImage;
   constructor(private storeService: StoreService) {}
 
   ngOnInit(): void {

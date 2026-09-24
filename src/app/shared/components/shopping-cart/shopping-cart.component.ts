@@ -3,6 +3,7 @@ import { Item, ItemCart } from '../../interfaces/item.interface';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { StoreService } from '../../../store/services/store.service';
+import { shoeImage } from '../../constants/shoe-images';
 
 @Component({
   selector: 'app-shopping-cart',
@@ -13,6 +14,7 @@ import { StoreService } from '../../../store/services/store.service';
 export class ShoppingCartComponent implements OnInit {
   items: ItemCart[] = [];
   totalPrice = 0;
+  shoeImage = shoeImage;
   constructor(
     private storeService: StoreService,
     public dialogRef: MatDialogRef<ShoppingCartComponent>,

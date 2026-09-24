@@ -10,9 +10,10 @@
   <div
     class="flex flex-col items-start text-sm font-light text-gray-800 mt-3 description"
   >
-    <span class="uppercase tracking-widest2 text-xs text-gray-500">{{ item?.categoryId?.description}}</span>
+    <span class="uppercase tracking-widest2 text-xs text-gray-500">{{ item?.manufacturer }}</span>
+    <span class="font-medium">{{ item?.product }}</span>
     <p class="opacity-0 mt-1 font-medium">
-      {{ item?.sizeId?.description}}<br />
-      S/. {{ item?.price}}
+      Talla {{ item?.size }}<br />
+      S/ {{ item?.price }}
     </p>
   </div>

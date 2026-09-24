@@ -11,7 +11,7 @@ import { StoreService } from '../../services/store.service';
   styleUrls: ['./item.component.scss'],
 })
 export class ItemComponent implements OnInit {
-  item!: Item;
+  item?: Item;
   constructor(
     private activatedRoute: ActivatedRoute,
     private storeService: StoreService
@@ -26,6 +26,7 @@ export class ItemComponent implements OnInit {
   ngOnInit(): void {}
 
   addItem() {
+    if (!this.item) return;
     this.storeService
       .addItem(this.item._id)
       .subscribe((resp) => console.log(resp));

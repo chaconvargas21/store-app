@@ -1,11 +1,11 @@
 export interface GetItemsResponse {
     ok: boolean;
-    items: Item[];    
+    products: Item[];
 }
 
 export interface GetItemByIdResponse {
     ok: boolean;
-    item: Item;    
+    product: Item;
 }
 
 export interface AddItemResponse {
@@ -25,20 +25,13 @@ export interface ItemCart {
     price: number;
 }
 
+// Mismo shape que el modelo `Product` de store-back.
 export interface Item {
-    collectionId: {
-        _id: string;
-        description: string;
-    };
-    categoryId: {
-        _id: string;
-        description: string;
-    };
-    sizeId: {
-        _id: string;
-        description: string;
-    }; 
-    quantity: number;
-    price: number;
     _id: string;
+    product: string;
+    price: number;
+    size: string;
+    quantity: number;
+    material: string;
+    manufacturer: string;
 }

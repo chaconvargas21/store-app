@@ -9,47 +9,35 @@
     <div class="w-full">
       <div class="mb-8">
         <p class="text-xs font-medium uppercase tracking-widest2 text-gray-500">
-          Collection
+          {{ item?.manufacturer }}
         </p>
-        <p class="text-2xl font-semibold text-ink mb-2">
-          {{ this.item?.collectionId?.description | titlecase }}
-        </p>
-        <p class="text-xs font-medium uppercase tracking-widest2 text-gray-500">
-          Category
-        </p>
-        <p class="text-lg font-semibold text-ink mb-4">
-          {{ this.item?.categoryId?.description | titlecase }}
-        </p>
+        <h1 class="text-2xl font-semibold text-ink mb-4">
+          {{ item?.product }}
+        </h1>
         <span class="text-lg font-semibold text-ink">
-          S./ {{ this.item?.price }}
+          S/ {{ item?.price }}
         </span>
       </div>
-      <div class="mb-8">
-        <label for="sizes" class="text-xs font-medium uppercase tracking-widest2 text-gray-500">Talla</label>
-        <select
-          id="sizes"
-          class="block mt-2 text-sm font-medium text-gray-700 border-gray-300"
-          [value]="item?.sizeId?._id"
-        >
-          <option value="2xs">2xs</option>
-          <option value="xs">xs</option>
-          <option value="s">s</option>
-          <option value="m">m</option>
-          <option value="l">l</option>
-          <option value="x">x</option>
-          <option value="xl">xl</option>
-        </select>
-      </div>
+      <dl class="grid grid-cols-2 gap-4 mb-8 text-sm">
+        <div>
+          <dt class="text-xs font-medium uppercase tracking-widest2 text-gray-500">Talla</dt>
+          <dd class="font-medium text-ink mt-1">{{ item?.size }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium uppercase tracking-widest2 text-gray-500">Material</dt>
+          <dd class="font-medium text-ink mt-1">{{ item?.material }}</dd>
+        </div>
+      </dl>
       <button
         class="text-sm font-medium text-white bg-ink text-center border border-ink w-full uppercase tracking-widest2 mb-4 py-3 hover:bg-opacity-80 transition-all duration-300"
         (click)="addItem()"
       >
-        add to cart
+        agregar al carrito
       </button>
       <button
         class="bg-yellow-500 text-sm font-medium text-ink text-center border border-yellow-500 w-full capitalize mb-4 py-3 hover:bg-opacity-80 transition-all duration-300"
       >
-        <span> Buy with <i class="fa-brands fa-amazon-pay"></i> </span>
+        <span> Comprar con <i class="fa-brands fa-amazon-pay"></i> </span>
       </button>
     </div>
   </div>

@@ -1,52 +1,61 @@
   <nav class="bg-white text-ink uppercase shadow-sm sticky z-50 top-0">
       <div class="container flex flex-wrap justify-between items-center mx-auto px-6">
-        <a class="flex items-center text-2xl font-semibold tracking-widest2" routerLink="">
+        <a class="flex items-center text-2xl font-semibold tracking-widest2" routerLink="/store">
           <span class="py-4"> Cursed </span>
         </a>
         <div class="flex items-center text-xs font-medium tracking-widest2">
           <div class="group">
-            <a href="" class="mx-3 py-2 hover:border-b hover:border-b-ink border-b border-b-transparent transition-colors" routerLink="/store/collections/shop"><span>shop all</span></a>
+            <a class="mx-3 py-2 hover:border-b hover:border-b-ink border-b border-b-transparent transition-colors" routerLink="/store/collections/shop"><span>tienda</span></a>
           </div>
           <div class="group">
-            <a href="" class="mx-3 py-2 hover:border-b hover:border-b-ink border-b border-b-transparent transition-colors" routerLink="/store/pages/collection"><span>collections</span></a>
+            <a class="mx-3 py-2 hover:border-b hover:border-b-ink border-b border-b-transparent transition-colors" routerLink="/store/pages/collection"><span>colecciones</span></a>
             <div class="group-hover:block absolute hidden z-50 py-4 bg-white rounded divide-y divide-gray-100 shadow">
               <ul class="py-1 text-gray-700">
-                <li class="py-2 px-4 hover:bg-gray-100"> collection-1</li>
-                <li class="py-2 px-4 hover:bg-gray-100"> collection-2</li>
-                <li class="py-2 px-4 hover:bg-gray-100"> collection-3</li>
+                <li *ngFor="let collection of collections">
+                  <a class="block py-2 px-4 hover:bg-gray-100" routerLink="/store/collections/shop" [queryParams]="{ categoria: collection.slug }">{{ collection.label }}</a>
+                </li>
               </ul>
             </div>
           </div>
           <div class="group">
-            <a href="" class="mx-3 py-2 hover:border-b hover:border-b-ink border-b border-b-transparent transition-colors"><span>categories</span></a>
+            <a class="mx-3 py-2 hover:border-b hover:border-b-ink border-b border-b-transparent transition-colors" routerLink="/store/collections/shop"><span>categorías</span></a>
             <div class="group-hover:block absolute hidden z-50 py-4 bg-white rounded divide-y divide-gray-100 shadow">
               <ul class="py-1 text-gray-700">
-                <li class="py-2 px-4 hover:bg-gray-100"> new in</li>
-                <li class="py-2 px-4 hover:bg-gray-100"> tops</li>
-                <li class="py-2 px-4 hover:bg-gray-100"> jumpers</li>
-                <li class="py-2 px-4 hover:bg-gray-100"> jackets</li>
-                <li class="py-2 px-4 hover:bg-gray-100"> bottoms</li>
-                <li class="py-2 px-4 hover:bg-gray-100"> sale</li>
-                <li class="py-2 px-4 hover:bg-gray-100"> gift cards</li>
+                <li *ngFor="let category of categories">
+                  <a class="block py-2 px-4 hover:bg-gray-100" routerLink="/store/collections/shop" [queryParams]="{ categoria: category.slug }">{{ category.label }}</a>
+                </li>
+                <li>
+                  <a class="block py-2 px-4 hover:bg-gray-100" routerLink="/store/collections/shop">Ver todo</a>
+                </li>
               </ul>
             </div>
           </div>
           <div class="group">
-            <a href="" class="mx-3 py-2 hover:border-b hover:border-b-ink border-b border-b-transparent transition-colors"><span>explore</span></a>
+            <span class="mx-3 py-2 cursor-default">explorar</span>
             <div class="group-hover:block absolute hidden z-50 py-4 bg-white rounded divide-y divide-gray-100 shadow">
               <ul class="py-1 text-gray-700">
-                <li class="py-2 px-4 hover:bg-gray-100"> my account</li>
-                <li class="py-2 px-4 hover:bg-gray-100"> contact us</li>
-                <li class="py-2 px-4 hover:bg-gray-100"> newsletter</li>
+                <li><a class="block py-2 px-4 hover:bg-gray-100" routerLink="/auth/login">Mi cuenta</a></li>
+                <li><a class="block py-2 px-4 hover:bg-gray-100" routerLink="/store" fragment="contacto">Contacto</a></li>
+                <li><a class="block py-2 px-4 hover:bg-gray-100" routerLink="/store" fragment="newsletter">Newsletter</a></li>
               </ul>
             </div>
           </div>
-          <button class="mx-3 py-2 hover:opacity-60 transition-opacity"><i class="fas fa-user"></i></button>
-          <button class="mx-3 py-2 hover:opacity-60 transition-opacity"><i class="fas fa-search"></i></button>
-          <button class="mx-3 py-2 hover:opacity-60 transition-opacity" (click)="openDialog()"><i class="fas fa-shopping-cart"></i></button>
-          <button class="mx-3 py-2 hover:opacity-60 transition-opacity"><span>pen s/.</span><i class="fas fa-angle-down"></i></button>
+          <a class="mx-3 py-2 hover:opacity-60 transition-opacity" routerLink="/auth/login" aria-label="Mi cuenta"><i class="fas fa-user"></i></a>
+          <div class="relative">
+            <button class="mx-3 py-2 hover:opacity-60 transition-opacity" (click)="toggleSearch()" aria-label="Buscar"><i class="fas fa-search"></i></button>
+            <input
+              *ngIf="showSearch"
+              #searchInput
+              type="search"
+              placeholder="Buscar calzado"
+              aria-label="Buscar calzado"
+              class="absolute right-0 top-full mt-2 w-64 text-sm normal-case tracking-normal border-gray-300 shadow"
+              (keydown.enter)="search(searchInput.value)"
+              (keydown.escape)="showSearch = false"
+            />
+          </div>
+          <button class="mx-3 py-2 hover:opacity-60 transition-opacity" (click)="openDialog()" aria-label="Carrito"><i class="fas fa-shopping-cart"></i></button>
+          <span class="mx-3 py-2">PEN S/</span>
         </div>
       </div>
     </nav>
-  
-  
