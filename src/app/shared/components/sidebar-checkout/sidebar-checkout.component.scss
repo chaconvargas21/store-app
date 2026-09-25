@@ -1,0 +1,29 @@
+.summary {
+  padding: 1.5rem;
+  background: #fff;
+}
+
+.summary-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid theme('colors.gray.200');
+}
+
+.summary-thumb {
+  flex: none;
+  width: 4rem;
+  height: 4rem;
+  object-fit: cover;
+  background: theme('colors.gray.100');
+}
+
+.summary-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid theme('colors.gray.200');
+  font-size: 0.875rem;
+  color: theme('colors.gray.600');
+}

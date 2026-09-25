@@ -1,40 +1,39 @@
-<div class="container mx-auto">
-    <div class="border-b border-gray-400 pb-3 mb-3 ">
-        <table width="100%">
-            <tr *ngFor="let itemCart of items; let i = index">
-                <td class="p-3 w-20">
-                    <img [src]="shoeImage(i)" alt="" class="border border-gray-300">
-                </td>
-                <td class="p-3">
-                    <strong>{{itemCart.item.product}}</strong><br>
-                    <span>Talla {{itemCart.item.size}}</span>
-                </td>
-                <td class="p-3">
-                    <span>S/ {{itemCart.price}}</span>
-                </td>
-            </tr>
-        </table>
+<aside class="summary" aria-labelledby="summary-title">
+  <div class="flex items-baseline justify-between gap-4">
+    <h2 id="summary-title" class="text-xl font-medium text-ink">
+      Resumen de tu pedido <span class="text-sm font-normal text-gray-500">({{ totalQuantity }})</span>
+    </h2>
+    <button *ngIf="editable" class="link whitespace-nowrap" (click)="editCart()">Editar carrito</button>
+  </div>
+
+  <ul class="mt-4">
+    <li *ngFor="let itemCart of items; let i = index" class="summary-item">
+      <img class="summary-thumb" [src]="shoeImage(i)" [alt]="itemCart.item.product" />
+      <div class="min-w-0 flex-1">
+        <p class="text-sm font-medium text-ink">{{ itemCart.item.product }}</p>
+        <dl class="mt-1 text-xs text-gray-500 space-y-1">
+          <div><dt class="inline">Talla: </dt><dd class="inline text-ink">{{ itemCart.item.size }}</dd></div>
+          <div><dt class="inline">Cantidad: </dt><dd class="inline text-ink">{{ itemCart.quantity }}</dd></div>
+        </dl>
+        <p class="mt-2 text-sm font-medium text-ink text-right">S/ {{ itemCart.price | number: '1.2-2' }}</p>
+      </div>
+    </li>
+    <li *ngIf="!items.length" class="py-6 text-sm text-gray-500">Tu carrito está vacío.</li>
+  </ul>
+
+  <dl class="summary-totals">
+    <div class="flex justify-between">
+      <dt class="font-medium text-ink">Subtotal</dt>
+      <dd class="font-medium text-ink">S/ {{ totalPrice | number: '1.2-2' }}</dd>
     </div>
-    <div class="flex border-b border-gray-400 pb-3 mb-3">
-        <input type="text" id="gift-card" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 flex-1" placeholder="Cupón o código de descuento" required>
-        <button class="bg-gray-600 text-white text-sm font-medium rounded ml-2 p-2">
-            Aplicar
-        </button>
+    <div class="flex justify-between">
+      <dt>Envío</dt>
+      <dd>A coordinar</dd>
     </div>
-    <div class="border-b border-gray-400 pb-3 mb-3">
-        <div class="flex justify-between">
-            <span class="text-sm font-medium text-gray-800">Subtotal</span>
-            <strong class="text-sm font-medium text-gray-900">S/ {{totalPrice}}</strong>
-        </div>
-        <div class="flex justify-between">
-            <span class="text-sm font-medium text-gray-800">Envío</span>
-            <span class="text-xs font-medium text-gray-700">Se calcula en el siguiente paso</span>
-        </div>
-    </div>
-    <div>
-        <div class="flex justify-between">
-            <span class="text-sm font-medium text-gray-800">Total</span>
-            <strong class="text-xl font-medium text-gray-900">S/ {{totalPrice}}</strong>
-        </div> 
-    </div>
-</div>
+  </dl>
+
+  <div class="flex items-baseline justify-between pt-5 border-t border-gray-200">
+    <span class="text-base font-medium text-ink">Total a pagar</span>
+    <span class="text-xl font-medium text-ink">S/ {{ totalPrice | number: '1.2-2' }}</span>
+  </div>
+</aside>

@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { ShoppingCartComponent } from '../shopping-cart/shopping-cart.component';
+import { CART_DRAWER_CONFIG, ShoppingCartComponent } from '../shopping-cart/shopping-cart.component';
 import { SHOE_CATEGORIES, SHOE_COLLECTIONS } from '../../constants/categories';
 import { AuthService } from '../../../auth/services/auth.service';
 
@@ -38,14 +38,7 @@ export class NavbarComponent {
 
   openDialog(){
     this.closeAll();
-    // Drawer lateral derecho: los estilos del panel están en `.cart-drawer` (styles.scss).
-    this.dialog.open(ShoppingCartComponent, {
-      position: { right: '0', top: '0' },
-      height: '100vh',
-      width: '420px',
-      maxWidth: '100vw',
-      panelClass: 'cart-drawer',
-    });
+    this.dialog.open(ShoppingCartComponent, CART_DRAWER_CONFIG);
   }
 
   openMega() {
