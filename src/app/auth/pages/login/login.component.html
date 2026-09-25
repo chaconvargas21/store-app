@@ -1,42 +1,56 @@
-<div class="flex justify-center items-center content-center h-screen">
-  <form [formGroup]="loginForm">
-    <div class="relative z-0 mb-6 w-full group">
-      <input
-        type="email"
-        name="floating_email"
-        formControlName="email"
-        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-        placeholder=" "
-        required=""
-      />
-      <label
-        for="floating_email"
-        class="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-        >Correo electrónico</label
-      >
+<main class="auth-page">
+  <div class="auth-card">
+    <a routerLink="/store" class="auth-brand">Calzados José</a>
+    <h1 class="auth-title">Iniciar sesión</h1>
+    <p class="auth-subtitle">Ingresá con tu correo para pagar tus pedidos.</p>
+
+    <form [formGroup]="loginForm" (ngSubmit)="login()" novalidate class="auth-form">
+      <div>
+        <label class="label" for="login-email">Correo electrónico</label>
+        <input
+          id="login-email"
+          type="email"
+          class="input"
+          formControlName="email"
+          autocomplete="email"
+          placeholder="Ingresá tu correo electrónico"
+          [class.is-invalid]="invalid('email')"
+        />
+        <p *ngIf="invalid('email')" class="field-error">Ingresá un correo válido.</p>
+      </div>
+
+      <div>
+        <label class="label" for="login-password">Contraseña</label>
+        <div class="password-field">
+          <input
+            id="login-password"
+            class="input"
+            formControlName="password"
+            autocomplete="current-password"
+            [type]="showPassword ? 'text' : 'password'"
+            [class.is-invalid]="invalid('password')"
+          />
+          <button
+            type="button"
+            class="password-toggle"
+            [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            [attr.aria-pressed]="showPassword"
+            (click)="showPassword = !showPassword"
+          >
+            <i class="fa-regular" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
+          </button>
+        </div>
+        <p *ngIf="invalid('password')" class="field-error">La contraseña tiene al menos 6 caracteres.</p>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-full" [disabled]="submitting">
+        {{ submitting ? 'Ingresando…' : 'Iniciar sesión' }}
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <span>¿No tenés cuenta?</span>
+      <a class="link" routerLink="/auth/sign-in">Registrarse</a>
     </div>
-    <div class="relative z-0 mb-6 w-full group">
-      <input
-        type="password"
-        name="floating_password"
-        formControlName="password"
-        id="floating_password"
-        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-        placeholder=" "
-        required=""
-      />
-      <label
-        for="floating_password"
-        class="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-        >Contraseña</label
-      >
-    </div>
-    <button
-      type="submit"
-      (click)="login()"
-      class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-    >
-      Ingresar
-    </button>
-  </form>
-</div>
+  </div>
+</main>

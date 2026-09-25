@@ -1,60 +1,69 @@
-<div mat-dialog-title>
-  <p class="text-sm font-normal text-gray-800 uppercase ml-4">
-    carrito
-    <button mat-button mat-dialog-close class="float-right" aria-label="Cerrar">x</button>
-  </p>
-</div>
-<div mat-dialog-content *ngIf="items.length; else emptyTemplate" class="h-screen">
-  <ul>
-    <li *ngFor="let itemCart of items; let i = index" class="flex relative border-y">
-      <button (click)='removeItemShoppingCart(itemCart.item._id)' aria-label="Quitar del carrito"><i class="fa-solid fa-trash-can absolute top-1 right-2"></i></button>
-      <img
-        [src]="shoeImage(i)"
-        alt=""
-        style="max-height: 100%; max-width: 90px"
-      />
-      <div class="ml-4">
-        <div class="my-1.5">
-          <p class="text-sm font-normal text-gray-800">
-            {{ itemCart.item.product }}
-          </p>
-          <small class="text-sm font-normal text-gray-500"
-            >Talla {{ itemCart.item.size }}
-          </small>
+<aside class="flex flex-col h-full bg-white text-ink" aria-label="Carrito">
+  <header class="flex-none h-12 flex items-center justify-between px-6 border-b border-gray-200 text-xs font-medium uppercase tracking-widest2">
+    <span>Carrito · {{ totalQuantity }}</span>
+    <button mat-dialog-close class="icon-btn -mr-2" aria-label="Cerrar">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </header>
+
+  <ng-container *ngIf="items.length; else emptyTemplate">
+    <div class="flex-1 overflow-y-auto px-6">
+      <ul>
+        <li *ngFor="let itemCart of items; let i = index" class="cart-item">
+          <img class="w-[88px] h-[88px] object-cover bg-gray-100" [src]="shoeImage(i)" [alt]="itemCart.item.product" />
+          <div class="flex flex-col min-w-0">
+            <span class="brand-label">{{ itemCart.item.manufacturer }}</span>
+            <span class="mt-1 text-sm font-medium truncate">{{ itemCart.item.product }}</span>
+            <span class="text-sm text-gray-500">Talla {{ itemCart.item.size }}</span>
+            <div class="mt-auto pt-3 flex items-center gap-4">
+              <div class="stepper" role="group" aria-label="Cantidad">
+                <button
+                  aria-label="Quitar uno"
+                  [disabled]="busy || itemCart.quantity <= 1"
+                  (click)="decrement(itemCart)"
+                >−</button>
+                <output>{{ itemCart.quantity }}</output>
+                <button aria-label="Agregar uno" [disabled]="busy" (click)="increment(itemCart)">+</button>
+              </div>
+              <button class="text-link" [disabled]="busy" (click)="removeItem(itemCart)">Quitar</button>
+            </div>
+          </div>
+          <div class="text-sm font-medium text-right whitespace-nowrap">
+            S/ {{ itemCart.price | number: '1.2-2' }}
+            <span *ngIf="itemCart.quantity > 1" class="block text-xs font-normal text-gray-500">
+              S/ {{ itemCart.item.price | number: '1.2-2' }} c/u
+            </span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <footer class="flex-none flex flex-col gap-4 px-6 pt-4 pb-6 border-t border-gray-200">
+      <div class="flex flex-col gap-2 text-sm">
+        <div class="flex justify-between items-baseline">
+          <span>Subtotal</span>
+          <strong class="font-medium">S/ {{ totalPrice | number: '1.2-2' }}</strong>
         </div>
-        <div class="mb-1.5">
-          <p class="text-sm font-normal text-gray-500">
-            S/ {{ itemCart.price }}
-          </p>
-        </div>
-        <div class="mb-1.5">
-          <button class="text-gray border px-2">+</button>
-          <button class="text-gray border px-2">{{ itemCart.quantity }}</button>
-          <button class="text-gray border px-2">-</button>
+        <div class="flex justify-between items-baseline">
+          <span>Envío</span>
+          <span class="text-xs text-gray-500">Se calcula en el siguiente paso</span>
         </div>
       </div>
-    </li>
-  </ul>
-</div>
-<div>
-  <button
-    class="bg-gray-600 text-sm font-normal text-white text-center uppercase w-full py-4"
-    (click)="checkout()"
-  >
-    pagar · S/ {{totalPrice}}
-  </button>
-</div>
+      <button class="btn btn-primary w-full" [disabled]="busy" (click)="checkout()">
+        Pagar · S/ {{ totalPrice | number: '1.2-2' }}
+      </button>
+      <button mat-dialog-close class="text-link self-center">Seguir comprando</button>
+    </footer>
+  </ng-container>
+</aside>
 
-<ng-template mat-dialog-content #emptyTemplate>
-  <div class="relative h-screen">
-    <button
-      class="absolute bg-gray-100 rounded-full drop-shadow-lg p-20 left-1/2 top-1/2 -translate-x-2/4 -translate-y-2/4"
-    >
-      <i class="fas fa-shopping-cart fa-2xl"></i>
-    </button>
-    <div class="h-1/2 w-full bg-gray-300 flex justify-center items-center">
-        <p class="text-gray-600 font-light text-2xl">Tu carrito está vacío</p>
+<ng-template #emptyTemplate>
+  <div class="flex-1 flex flex-col items-center justify-center gap-4 p-6 text-center">
+    <div class="empty-icon">
+      <i class="fa-solid fa-bag-shopping fa-xl"></i>
     </div>
-    <div class="h-1/2 w-full bg-gray-200"></div>
+    <p class="text-2xl font-light">Tu carrito está vacío</p>
+    <p class="text-sm text-gray-500 max-w-[260px]">Cuando agregues un par, lo vas a ver acá.</p>
+    <button class="btn btn-secondary" (click)="goToShop()">Ver la tienda</button>
   </div>
 </ng-template>

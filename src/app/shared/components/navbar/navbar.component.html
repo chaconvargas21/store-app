@@ -1,61 +1,152 @@
-  <nav class="bg-white text-ink uppercase shadow-sm sticky z-50 top-0">
-      <div class="container flex flex-wrap justify-between items-center mx-auto px-6">
-        <a class="flex items-center text-2xl font-semibold tracking-widest2" routerLink="/store">
-          <span class="py-4"> Cursed </span>
-        </a>
-        <div class="flex items-center text-xs font-medium tracking-widest2">
-          <div class="group">
-            <a class="mx-3 py-2 hover:border-b hover:border-b-ink border-b border-b-transparent transition-colors" routerLink="/store/collections/shop"><span>tienda</span></a>
-          </div>
-          <div class="group">
-            <a class="mx-3 py-2 hover:border-b hover:border-b-ink border-b border-b-transparent transition-colors" routerLink="/store/pages/collection"><span>colecciones</span></a>
-            <div class="group-hover:block absolute hidden z-50 py-4 bg-white rounded divide-y divide-gray-100 shadow">
-              <ul class="py-1 text-gray-700">
-                <li *ngFor="let collection of collections">
-                  <a class="block py-2 px-4 hover:bg-gray-100" routerLink="/store/collections/shop" [queryParams]="{ categoria: collection.slug }">{{ collection.label }}</a>
-                </li>
-              </ul>
+<header class="sticky top-0 z-50" (keydown.escape)="closeAll()">
+  <nav class="relative bg-ink text-white">
+    <div class="container mx-auto h-16 px-6 flex items-center gap-8">
+      <button
+        class="icon-btn icon-btn--mobile -ml-2"
+        [attr.aria-expanded]="mobileOpen"
+        aria-controls="mobile-menu"
+        aria-label="Menú"
+        (click)="toggleMobile()"
+      >
+        <i class="fa-solid" [class.fa-bars]="!mobileOpen" [class.fa-xmark]="mobileOpen"></i>
+      </button>
+
+      <a class="text-base md:text-xl font-medium uppercase tracking-widest2 whitespace-nowrap" routerLink="/store" (click)="closeAll()">Calzados José</a>
+
+      <ul class="hidden md:flex items-center gap-8 h-full text-sm font-medium">
+        <li class="h-full flex items-center">
+          <a
+            class="nav-link"
+            routerLink="/store/collections/shop"
+            routerLinkActive="nav-link--active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            (click)="closeAll()"
+          >Tienda</a>
+        </li>
+        <li class="h-full flex items-center" (mouseenter)="openMega()" (mouseleave)="closeMega()">
+          <button
+            class="nav-link"
+            [class.nav-link--active]="megaOpen"
+            [attr.aria-expanded]="megaOpen"
+            aria-controls="mega-menu"
+            (click)="openMega()"
+          >Calzado</button>
+
+          <div
+            *ngIf="megaOpen"
+            id="mega-menu"
+            class="absolute left-0 right-0 top-full bg-white text-ink shadow-sm"
+          >
+            <div class="container mx-auto px-6 py-8 grid grid-cols-3 gap-12 max-w-4xl">
+              <div>
+                <p class="mega-title">Categorías</p>
+                <ul>
+                  <li *ngFor="let category of categories">
+                    <a class="mega-link" routerLink="/store/collections/shop" [queryParams]="{ categoria: category.slug }" (click)="closeAll()">{{ category.label }}</a>
+                  </li>
+                  <li><a class="mega-link" routerLink="/store/collections/shop" (click)="closeAll()">Ver todo</a></li>
+                </ul>
+              </div>
+              <div>
+                <p class="mega-title">Colecciones</p>
+                <ul>
+                  <li *ngFor="let collection of collections">
+                    <a class="mega-link" routerLink="/store/collections/shop" [queryParams]="{ categoria: collection.slug }" (click)="closeAll()">{{ collection.label }}</a>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <p class="mega-title">Explorar</p>
+                <ul>
+                  <li><a class="mega-link" routerLink="/store" fragment="contacto" (click)="closeAll()">Contacto</a></li>
+                  <li><a class="mega-link" routerLink="/store" fragment="newsletter" (click)="closeAll()">Newsletter</a></li>
+                </ul>
+              </div>
             </div>
           </div>
-          <div class="group">
-            <a class="mx-3 py-2 hover:border-b hover:border-b-ink border-b border-b-transparent transition-colors" routerLink="/store/collections/shop"><span>categorías</span></a>
-            <div class="group-hover:block absolute hidden z-50 py-4 bg-white rounded divide-y divide-gray-100 shadow">
-              <ul class="py-1 text-gray-700">
-                <li *ngFor="let category of categories">
-                  <a class="block py-2 px-4 hover:bg-gray-100" routerLink="/store/collections/shop" [queryParams]="{ categoria: category.slug }">{{ category.label }}</a>
-                </li>
-                <li>
-                  <a class="block py-2 px-4 hover:bg-gray-100" routerLink="/store/collections/shop">Ver todo</a>
-                </li>
-              </ul>
+        </li>
+        <li class="h-full flex items-center">
+          <a
+            class="nav-link"
+            routerLink="/store/pages/collection"
+            routerLinkActive="nav-link--active"
+            (click)="closeAll()"
+          >Colecciones</a>
+        </li>
+      </ul>
+
+      <div class="ml-auto flex items-center gap-2">
+        <form
+          *ngIf="showSearch; else searchButton"
+          class="search-field"
+          role="search"
+          (submit)="$event.preventDefault(); search(searchInput.value)"
+        >
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input
+            #searchInput
+            type="search"
+            placeholder="Buscar calzado"
+            aria-label="Buscar calzado"
+            (keydown.escape)="showSearch = false"
+            (blur)="!searchInput.value && (showSearch = false)"
+          />
+        </form>
+        <ng-template #searchButton>
+          <button class="search-btn" aria-label="Buscar" (click)="toggleSearch()">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <span class="hidden sm:inline">Buscar</span>
+          </button>
+        </ng-template>
+
+        <button class="icon-btn" (click)="openDialog()" aria-label="Carrito">
+          <i class="fa-solid fa-cart-shopping"></i>
+        </button>
+
+        <div class="relative" (mouseenter)="accountOpen = true" (mouseleave)="accountOpen = false">
+          <button
+            class="icon-btn"
+            aria-label="Mi cuenta"
+            aria-controls="account-menu"
+            [attr.aria-expanded]="accountOpen"
+            (click)="accountOpen = !accountOpen"
+          >
+            <i class="fa-regular fa-user"></i>
+          </button>
+
+          <div *ngIf="accountOpen" id="account-menu" class="account-menu">
+            <ul class="py-2">
+              <li><a class="account-link" routerLink="/auth/login" (click)="closeAll()"><i class="fa-regular fa-user"></i>Mi cuenta</a></li>
+              <li><a class="account-link" routerLink="/store" fragment="contacto" (click)="closeAll()"><i class="fa-solid fa-phone"></i>Contactanos</a></li>
+              <li><a class="account-link" routerLink="/store" fragment="newsletter" (click)="closeAll()"><i class="fa-regular fa-envelope"></i>Newsletter</a></li>
+            </ul>
+            <div class="flex flex-col gap-3 pt-2">
+              <ng-container *ngIf="!isLoggedIn; else logoutButton">
+                <a class="btn btn-primary" routerLink="/auth/login" (click)="closeAll()">Iniciar sesión</a>
+                <a class="btn btn-secondary" routerLink="/auth/sign-in" (click)="closeAll()">Registrarse</a>
+              </ng-container>
+              <ng-template #logoutButton>
+                <button class="btn btn-secondary" (click)="logout()">Cerrar sesión</button>
+              </ng-template>
             </div>
           </div>
-          <div class="group">
-            <span class="mx-3 py-2 cursor-default">explorar</span>
-            <div class="group-hover:block absolute hidden z-50 py-4 bg-white rounded divide-y divide-gray-100 shadow">
-              <ul class="py-1 text-gray-700">
-                <li><a class="block py-2 px-4 hover:bg-gray-100" routerLink="/auth/login">Mi cuenta</a></li>
-                <li><a class="block py-2 px-4 hover:bg-gray-100" routerLink="/store" fragment="contacto">Contacto</a></li>
-                <li><a class="block py-2 px-4 hover:bg-gray-100" routerLink="/store" fragment="newsletter">Newsletter</a></li>
-              </ul>
-            </div>
-          </div>
-          <a class="mx-3 py-2 hover:opacity-60 transition-opacity" routerLink="/auth/login" aria-label="Mi cuenta"><i class="fas fa-user"></i></a>
-          <div class="relative">
-            <button class="mx-3 py-2 hover:opacity-60 transition-opacity" (click)="toggleSearch()" aria-label="Buscar"><i class="fas fa-search"></i></button>
-            <input
-              *ngIf="showSearch"
-              #searchInput
-              type="search"
-              placeholder="Buscar calzado"
-              aria-label="Buscar calzado"
-              class="absolute right-0 top-full mt-2 w-64 text-sm normal-case tracking-normal border-gray-300 shadow"
-              (keydown.enter)="search(searchInput.value)"
-              (keydown.escape)="showSearch = false"
-            />
-          </div>
-          <button class="mx-3 py-2 hover:opacity-60 transition-opacity" (click)="openDialog()" aria-label="Carrito"><i class="fas fa-shopping-cart"></i></button>
-          <span class="mx-3 py-2">PEN S/</span>
         </div>
       </div>
-    </nav>
+    </div>
+  </nav>
+
+  <!-- Menú mobile -->
+  <div *ngIf="mobileOpen" id="mobile-menu" class="md:hidden bg-white text-ink border-b border-gray-200 max-h-[calc(100vh-4rem)] overflow-y-auto">
+    <div class="px-6 py-4">
+      <a class="mobile-link" routerLink="/store/collections/shop" (click)="closeAll()">Tienda</a>
+      <a class="mobile-link" routerLink="/store/pages/collection" (click)="closeAll()">Colecciones</a>
+      <p class="mega-title mobile-group">Categorías</p>
+      <a *ngFor="let category of categories" class="mega-link" routerLink="/store/collections/shop" [queryParams]="{ categoria: category.slug }" (click)="closeAll()">{{ category.label }}</a>
+      <p class="mega-title mobile-group">Colecciones</p>
+      <a *ngFor="let collection of collections" class="mega-link" routerLink="/store/collections/shop" [queryParams]="{ categoria: collection.slug }" (click)="closeAll()">{{ collection.label }}</a>
+    </div>
+  </div>
+</header>
+
+<!-- Oscurece la página mientras el mega menú está abierto -->
+<div *ngIf="megaOpen || mobileOpen" class="fixed inset-0 z-40 bg-black/40" (click)="closeAll()" aria-hidden="true"></div>

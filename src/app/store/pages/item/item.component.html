@@ -1,44 +1,57 @@
-<div class="container mx-auto px-6 py-16 md:py-28">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-    <div class="mx-auto w-full">
-      <div
-        class="bg-gray-100 bg-cover bg-center aspect-square"
-        style="background-image: url(./assets/images/calzado-1.jpg)"
-      ></div>
+<div class="container mx-auto px-6 pt-6 pb-16">
+  <nav aria-label="Ruta" class="mb-6">
+    <ol class="breadcrumb">
+      <li><a routerLink="/store">Inicio</a></li>
+      <li><a routerLink="/store/collections/shop">Tienda</a></li>
+      <li aria-current="page">{{ item?.product }}</li>
+    </ol>
+  </nav>
+
+  <div *ngIf="item; else loading" class="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-8 lg:gap-12">
+    <!-- Foto -->
+    <div class="bg-gray-100 aspect-square">
+      <img class="w-full h-full object-cover" [src]="image" [alt]="item.product" />
     </div>
-    <div class="w-full">
-      <div class="mb-8">
-        <p class="text-xs font-medium uppercase tracking-widest2 text-gray-500">
-          {{ item?.manufacturer }}
-        </p>
-        <h1 class="text-2xl font-semibold text-ink mb-4">
-          {{ item?.product }}
-        </h1>
-        <span class="text-lg font-semibold text-ink">
-          S/ {{ item?.price }}
-        </span>
-      </div>
-      <dl class="grid grid-cols-2 gap-4 mb-8 text-sm">
+
+    <!-- Info y compra -->
+    <div class="lg:sticky lg:top-24 self-start">
+      <p class="text-xs font-medium uppercase tracking-widest2 text-gray-500">{{ item.manufacturer }}</p>
+      <h1 class="mt-2 text-3xl font-medium leading-tight text-ink">{{ item.product }}</h1>
+      <span *ngIf="soldOut" class="badge mt-3">Agotado</span>
+      <p class="mt-4 text-2xl font-medium text-ink">S/ {{ item.price | number: '1.2-2' }}</p>
+
+      <dl class="mt-8 space-y-6">
         <div>
-          <dt class="text-xs font-medium uppercase tracking-widest2 text-gray-500">Talla</dt>
-          <dd class="font-medium text-ink mt-1">{{ item?.size }}</dd>
+          <dt class="label">Talla</dt>
+          <dd class="mt-3 flex">
+            <span class="size-chip" [class.size-chip--off]="soldOut">{{ item.size }}</span>
+          </dd>
         </div>
         <div>
-          <dt class="text-xs font-medium uppercase tracking-widest2 text-gray-500">Material</dt>
-          <dd class="font-medium text-ink mt-1">{{ item?.material }}</dd>
+          <dt class="label">Material</dt>
+          <dd class="mt-2 text-sm text-ink">{{ item.material }}</dd>
         </div>
       </dl>
-      <button
-        class="text-sm font-medium text-white bg-ink text-center border border-ink w-full uppercase tracking-widest2 mb-4 py-3 hover:bg-opacity-80 transition-all duration-300"
-        (click)="addItem()"
-      >
-        agregar al carrito
+
+      <button class="btn btn-primary w-full mt-8" [disabled]="soldOut || adding" (click)="addItem()">
+        {{ soldOut ? 'Agotado' : adding ? 'Agregando…' : 'Agregar al carrito' }}
       </button>
-      <button
-        class="bg-yellow-500 text-sm font-medium text-ink text-center border border-yellow-500 w-full capitalize mb-4 py-3 hover:bg-opacity-80 transition-all duration-300"
-      >
-        <span> Comprar con <i class="fa-brands fa-amazon-pay"></i> </span>
-      </button>
+
+      <ul class="mt-8 space-y-3 text-sm text-gray-600">
+        <li class="flex items-center gap-3"><i class="fa-regular fa-credit-card w-4 text-center"></i>Pago con tarjeta, procesado por Stripe</li>
+        <li class="flex items-center gap-3"><i class="fa-solid fa-truck w-4 text-center"></i>El envío se calcula en el checkout</li>
+      </ul>
     </div>
   </div>
+
+  <ng-template #loading>
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-8 lg:gap-12" aria-hidden="true">
+      <div class="bg-gray-100 aspect-square animate-pulse"></div>
+      <div class="space-y-4">
+        <div class="h-3 w-24 bg-gray-100"></div>
+        <div class="h-8 w-3/4 bg-gray-100"></div>
+        <div class="h-6 w-28 bg-gray-100"></div>
+      </div>
+    </div>
+  </ng-template>
 </div>
