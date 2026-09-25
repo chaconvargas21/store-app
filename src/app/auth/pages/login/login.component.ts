@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { ValidatorService } from 'src/app/shared/validators/validator.service';
 import { AuthService } from '../../services/auth.service';
-import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-login',
@@ -17,7 +17,8 @@ export class LoginComponent implements OnInit {
     private fb: FormBuilder,
     private validator: ValidatorService,
     private auth: AuthService,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar
   ) {}
 
   loginForm!: FormGroup;
@@ -59,7 +60,10 @@ export class LoginComponent implements OnInit {
         if (ok === true) {
           this.router.navigateByUrl('/store');
         } else {
-          Swal.fire('Error', ok, 'error');
+          this.snackBar.open(ok, 'Cerrar', {
+            duration: 5000,
+            panelClass: 'snackbar-danger',
+          });
         }
       });
   }

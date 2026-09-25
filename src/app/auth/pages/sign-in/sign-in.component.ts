@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { ValidatorService } from 'src/app/shared/validators/validator.service';
-import Swal from 'sweetalert2';
 import { AuthService } from '../../services/auth.service';
 
 // Reglas de la contraseña: se muestran como checklist y también validan el form.
@@ -24,7 +24,8 @@ export class SignInComponent implements OnInit {
     private fb: FormBuilder,
     private validator: ValidatorService,
     private router: Router,
-    private auth: AuthService
+    private auth: AuthService,
+    private snackBar: MatSnackBar
   ) {}
 
   signInForm!: FormGroup;
@@ -96,7 +97,10 @@ export class SignInComponent implements OnInit {
         if (ok === true) {
           this.router.navigateByUrl('/store');
         } else {
-          Swal.fire('Error', ok, 'error');
+          this.snackBar.open(ok, 'Cerrar', {
+            duration: 5000,
+            panelClass: 'snackbar-danger',
+          });
         }
       });
   }
