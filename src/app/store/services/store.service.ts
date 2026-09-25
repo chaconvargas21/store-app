@@ -1,6 +1,7 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
+import { SKIP_LOADING } from 'src/app/shared/interceptors/loading.interceptor';
 import { AddItemResponse, GetItemByIdResponse, GetItemsCartShoppingResponse, GetItemsResponse, Item, RemoveItemResponse } from '../interfaces/item.interface';
 import { catchError, map, Observable, of } from 'rxjs';
 
@@ -38,8 +39,9 @@ export class StoreService {
   }
 
   // Devuelve el producto agregado, o undefined si el backend no lo encontró.
+  // Sin loader de página completa: ItemComponent ya avisa con un snackbar.
   addItem(id: string): Observable<Item | undefined>{
-    return this.http.get<AddItemResponse>(`${this.baseUrl}/cart/${id}`,{withCredentials: true}).pipe(
+    return this.http.get<AddItemResponse>(`${this.baseUrl}/cart/${id}`,{withCredentials: true, context: new HttpContext().set(SKIP_LOADING, true)}).pipe(
       map((resp) => {
         return resp.item;
       }),
