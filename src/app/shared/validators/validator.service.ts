@@ -6,7 +6,8 @@ import { AbstractControl, ValidationErrors } from '@angular/forms';
 })
 export class ValidatorService {
   emailPattern: string = '^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$';
-  firstLastNamePattern: string = '([a-zA-Z]+) ([a-zA-Z]+)';
+  // Un nombre o apellido: letras (con tildes y ñ), espacios, apóstrofo y guion.
+  namePattern: string = "^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' -]+$";
   constructor() {}
 
   equalsFields(field1: string, field2: string) {

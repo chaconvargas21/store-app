@@ -1,127 +1,79 @@
-<div class="flex justify-center items-center content-center h-screen">
-  <form [formGroup]="signInForm">
-    <div class="relative z-0 mb-6 w-full group">
-      <input
-        type="email"
-        name="floating_email"
-        formControlName="email"
-        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+<main class="auth-page">
+  <div class="auth-card">
+    <a routerLink="/store" class="auth-brand">Calzados José</a>
+    <h1 class="auth-title">Crear una cuenta</h1>
+    <p class="auth-subtitle">Empecemos. Completá tus datos.</p>
 
-        placeholder=" "
-        required=""
-      />
-      <label
-        for="floating_email"
-        class="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-        >Correo electrónico</label
-      >
-    </div>
-    <div class="relative z-0 mb-6 w-full group">
-      <input
-        type="password"
-        name="floating_password"
-        formControlName="password"
-        id="floating_password"
-        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-        placeholder=" "
-        required=""
-      />
-      <label
-        for="floating_password"
-        class="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-        >Contraseña</label
-      >
-    </div>
-    <div class="relative z-0 mb-6 w-full group">
-      <input
-        type="password"
-        name="repeat_password"
-        formControlName="password2"
-        id="floating_repeat_password"
-        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-        placeholder=" "
-        required=""
-      />
-      <label
-        for="floating_repeat_password"
-        class="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-        >Confirmar contraseña</label
-      >
-    </div>
-    <div class="grid xl:grid-cols-2 xl:gap-6">
-      <div class="relative z-0 mb-6 w-full group">
-        <input
-          type="text"
-          name="floating_first_name"
-          formControlName="firstName"
-          id="floating_first_name"
-          class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-          placeholder=" "
-          required=""
-        />
-        <label
-          for="floating_first_name"
-          class="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-          >Nombre</label
-        >
+    <form [formGroup]="signInForm" (ngSubmit)="signIn()" novalidate class="auth-form">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <label class="label" for="signup-first-name">Nombre</label>
+          <input id="signup-first-name" class="input" formControlName="firstName" autocomplete="given-name" [class.is-invalid]="invalid('firstName')" />
+          <p *ngIf="invalid('firstName')" class="field-error">Ingresá tu nombre.</p>
+        </div>
+        <div>
+          <label class="label" for="signup-last-name">Apellido</label>
+          <input id="signup-last-name" class="input" formControlName="lastName" autocomplete="family-name" [class.is-invalid]="invalid('lastName')" />
+          <p *ngIf="invalid('lastName')" class="field-error">Ingresá tu apellido.</p>
+        </div>
       </div>
-      <div class="relative z-0 mb-6 w-full group">
+
+      <div>
+        <label class="label" for="signup-email">Correo electrónico</label>
         <input
-          type="text"
-          name="floating_last_name"
-          formControlName="lastName"
-          id="floating_last_name"
-          class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-          placeholder=" "
-          required=""
+          id="signup-email"
+          type="email"
+          class="input"
+          formControlName="email"
+          autocomplete="email"
+          placeholder="tu@correo.com"
+          [class.is-invalid]="invalid('email')"
         />
-        <label
-          for="floating_last_name"
-          class="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-          >Apellido</label
-        >
+        <p *ngIf="invalid('email')" class="field-error">Ingresá un correo válido.</p>
       </div>
+
+      <div>
+        <label class="label" for="signup-password">Contraseña</label>
+        <div class="password-field">
+          <input
+            id="signup-password"
+            class="input"
+            formControlName="password"
+            autocomplete="new-password"
+            aria-describedby="password-rules"
+            [type]="showPassword ? 'text' : 'password'"
+            [class.is-invalid]="invalid('password')"
+          />
+          <button
+            type="button"
+            class="password-toggle"
+            [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            [attr.aria-pressed]="showPassword"
+            (click)="showPassword = !showPassword"
+          >
+            <i class="fa-regular" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
+          </button>
+        </div>
+        <div id="password-rules" class="password-rules">
+          <p>Debe tener:</p>
+          <ul>
+            <li *ngFor="let rule of passwordRules" [class.met]="rule.met">
+              <i class="fa-solid" [class.fa-check]="rule.met" [class.fa-circle]="!rule.met" aria-hidden="true"></i>
+              {{ rule.label }}
+              <span class="sr-only">{{ rule.met ? '(cumplido)' : '(pendiente)' }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-full" [disabled]="submitting">
+        {{ submitting ? 'Creando cuenta…' : 'Crear cuenta' }}
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <span>¿Ya tenés cuenta?</span>
+      <a class="link" routerLink="/auth/login">Iniciar sesión</a>
     </div>
-    <div class="grid xl:grid-cols-2 xl:gap-6">
-      <div class="relative z-0 mb-6 w-full group">
-        <input
-          type="tel"
-          name="floating_phone"
-          formControlName="phoneNumber"
-          id="floating_phone"
-          class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-          placeholder=" "
-          required=""
-        />
-        <label
-          for="floating_phone"
-          class="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-          >Teléfono</label
-        >
-      </div>
-      <div class="relative z-0 mb-6 w-full group">
-        <input
-          type="text"
-          name="floating_company"
-          formControlName="company"
-          id="floating_company"
-          class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-          placeholder=" "
-          required=""
-        />
-        <label
-          for="floating_company"
-          class="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-          >Empresa</label
-        >
-      </div>
-    </div>
-    <button
-      type="submit"
-      (click)="signIn()"
-      class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-    >
-      Crear cuenta
-    </button>
-  </form>
-</div>
+  </div>
+</main>

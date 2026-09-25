@@ -1,0 +1,107 @@
+// Compartido por LoginComponent y SignInComponent.
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 4rem 1rem;
+  background: theme('colors.gray.100');
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 28rem;
+  padding: 2.5rem 2rem;
+  background: #fff;
+}
+
+.auth-brand {
+  display: inline-block;
+  margin-bottom: 2rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: theme('colors.ink');
+}
+
+.auth-title {
+  font-size: 1.75rem;
+  line-height: 2.25rem;
+  font-weight: 500;
+  color: theme('colors.ink');
+}
+
+.auth-subtitle {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: theme('colors.gray.500');
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+.password-field {
+  position: relative;
+
+  .input { padding-right: 3rem; }
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.25rem;
+  top: calc(50% + 0.25rem);
+  transform: translateY(-50%);
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  color: theme('colors.gray.600');
+
+  &:hover { color: theme('colors.ink'); }
+  &:focus-visible { outline: 2px solid theme('colors.ink'); outline-offset: -2px; }
+}
+
+.password-rules {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: theme('colors.gray.100');
+  font-size: 0.75rem;
+  color: theme('colors.gray.600');
+
+  ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: 0.375rem 1rem;
+    margin-top: 0.5rem;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i { font-size: 0.4rem; width: 0.75rem; text-align: center; }
+
+    &.met { color: theme('colors.ink'); font-weight: 500; }
+    &.met i { font-size: 0.7rem; color: #15803d; }
+  }
+}
+
+.auth-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 2rem -2rem -2.5rem;
+  padding: 1.25rem 2rem;
+  background: theme('colors.gray.50');
+  border-top: 1px solid theme('colors.gray.200');
+  font-size: 0.875rem;
+  color: theme('colors.gray.600');
+}
