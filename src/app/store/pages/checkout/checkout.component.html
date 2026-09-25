@@ -1,176 +1,184 @@
-<div class="container mx-auto p-20">
-    <div class="flex">
-        <div class="flex-auto px-20">
-            <mat-stepper linear #stepper>
-                <mat-step >
-                    <form [formGroup]="infoForm" (submit)="newOrder()">
-                        <ng-template matStepLabel>Información</ng-template>
-                        <!-- Express checkout -->
-                        <div class="mb-4">
-                            <div class="flex border border-gray-300 p-3">
-                                <button class="bg-yellow-600 text-white rounded p-2 flex-auto"><i class="fa-brands fa-paypal fa-xl"></i></button>
-                                <button class="bg-blue-600 text-white rounded p-2 flex-auto ml-2"><i class="fa-brands fa-amazon-pay fa-xl"></i></button>
-                                <button class="bg-gray-900 text-white rounded p-2 flex-auto ml-2"><i class="fa-brands fa-google-pay fa-xl"></i></button>
-                            </div>
-                        </div>
-                        <!-- Contact information -->
-                        <div class="mb-4">
-                            <div class="flex justify-between mb-2">
-                                <label for="email" class="block text-sm font-medium text-gray-900">Datos de contacto</label>
-                                <span class="text-sm font-medium text-gray-900"> ¿Ya tienes cuenta? <a routerLink="/auth/login">Inicia sesión</a> </span>
-                            </div>
-                            <div class="flex">
-                                <input type="text" id="firstName" formControlName="firstName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 mb-2 flex-auto" placeholder="Nombre" required>
-                                <input type="text" id="lastName" formControlName="lastName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 mb-2 ml-2 flex-auto" placeholder="Apellido" required>    
-                            </div>
-                            <input type="text" id="email" formControlName="receipt_email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2" placeholder="Correo electrónico" required>
-                            <input checked id="checked-checkbox" type="checkbox" value="" class="text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 focus:ring-2 ">
-                            <label for="checked-checkbox" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Enviarme novedades y ofertas por correo</label>
-                        </div>
-                        <!-- Delivery method -->
-                        <div formGroupName="shipping">
-                            <div class="mb-4">
-                                <label class="block mb-2 text-sm font-medium text-gray-900">Método de entrega</label>
-                                <div class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
-                                    <input id="ship" type="radio" formControlName="name" value="ship" name="name" class=" text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500">
-                                    <label for="ship" class="ml-2 text-sm font-medium text-gray-900"><i class="fa-solid fa-truck"></i> Envío a domicilio</label>                        
-                                </div>
-                                <div class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 mb-2">
-                                    <input id="pickup" type="radio" formControlName="name" value="pickup" name="name" class=" text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500">
-                                    <label for="pickup" class="ml-2 text-sm font-medium text-gray-900"><i class="fa-solid fa-shop"></i> Recojo en tienda</label>
-                                </div>
-                                <select id="carrier" formControlName="carrier" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5">
-                                    <option selected>Elige una empresa de envío</option>
-                                    <option value="Fedex">Fedex</option>
-                                    <option value="UPS">UPS</option>
-                                    <option value="USPS">USPS</option>
-                                    <option value="Amazon">Amazon</option>
-                                </select>
-                            </div>
-                            <!-- Shipping address -->
-                            <div class="mb-4">
-                                <label class="block mb-2 text-sm font-medium text-gray-900">Dirección de envío</label>
-                                
-                                <div formGroupName="address">
+<div class="checkout-page">
+  <div class="container mx-auto px-4 md:px-6 py-6 md:py-8">
+    <a routerLink="/store/collections/shop" class="inline-flex items-center gap-2 text-sm text-ink hover:underline underline-offset-4">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Seguir comprando
+    </a>
 
-                                    <select id="country" formControlName="country" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2">
-                                        <option selected>Elige un país</option>
-                                        <option value="US">Estados Unidos</option>
-                                        <option value="CA">Canada</option>
-                                        <option value="FR">Francia</option>
-                                        <option value="DE">Alemania</option>
-                                    </select>
-                                    <div class="flex">
-                                        <input type="text" id="city" formControlName="city" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-1/3 p-2.5 mb-2 flex-auto" placeholder="Ciudad" required>
-                                        <select id="state" formControlName="state" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-1/3 p-2.5 mb-2 ml-2 flex-auto">
-                                            <option selected>Elige una región</option>
-                                            <option value="PE-CUS">Cusco</option>
-                                            <option value="PE-CUS">Cusco</option>
-                                            <option value="PE-CUS">Cusco</option>
-                                            <option value="PE-CUS">Cusco</option>
-                                            <option value="PE-CUS">Cusco</option>
-                                        </select>                
-                                        <input type="text" id="postal_code" formControlName="postal_code" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 mb-2 ml-2 flex-auto" placeholder="Código postal" required>    
-                                    </div>
-                                    <input type="text" id="line1"   formControlName="line1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2" placeholder="Dirección" required>
-                                    <input type="text" id="line2" formControlName="line2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2" placeholder="Departamento" required>
+    <div class="mt-6 grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6 items-start">
+      <div class="flex flex-col gap-4">
 
-                                </div>
-                                
-                                <input type="text" id="phone" formControlName="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2" placeholder="Teléfono" required>
+        <!-- Pago confirmado -->
+        <section *ngIf="paid; else steps" class="step" aria-live="polite">
+          <div class="step-body text-center py-10">
+            <div class="done-icon"><i class="fa-solid fa-check" aria-hidden="true"></i></div>
+            <h1 class="mt-4 text-2xl font-medium text-ink">Pago realizado</h1>
+            <p class="mt-2 text-sm text-gray-600">
+              Gracias por tu compra. Te enviamos el comprobante a <strong class="text-ink">{{ contactForm.value.receipt_email }}</strong>.
+            </p>
+            <a routerLink="/store/collections/shop" class="btn btn-primary mt-8">Seguir comprando</a>
+          </div>
+        </section>
 
-                                <input checked id="checked-checkbox" type="checkbox" value="" class="text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 focus:ring-2 ">
-                                <label for="checked-checkbox" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Enviarme novedades y ofertas por SMS</label>
-                            </div>
-                        </div>
-                        
-                        <div class="flex justify-between">
-                            <a class="text-gray-900 text-sm font-medium py-4" routerLink="/store/content">
-                                <span class=""> <i class="fa-solid fa-angle-left"></i> Volver al carrito </span>
-                            </a>
-                            <button mat-button matStepperNext type="submit" [disabled]="infoForm.invalid || infoForm.disabled"
-                            class="bg-gray-600 text-white text-sm font-medium rounded p-2">
-                                Continuar
-                            </button>
-                        </div>
-                    </form> 
-                </mat-step>
-                <!-- <mat-step>
-                    <ng-template matStepLabel>Shipping</ng-template>
-                    <div class="mb-4">
-                        <div class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-3">
-                            <div class="flex">
-                                <div class="basis-20"> Contact </div>
-                                <div class="flex-1"> example@mail.com </div>    
-                                <div class="flex-1"> {{email?.value}} </div>    
-                                <div class="basis-20">
-                                    <a>Change</a>
-                                </div>
-                            </div>
-                            <div class="flex border-t border-gray-300 mt-1 pt-1">
-                                <div class="basis-20"> Ship to </div>
-                                <div class="flex-1"> Cusco, Cusco, Peru</div>    
-                                <div class="flex-1"> {{address?.value}},{{city?.value}},{{region?.value}},{{country?.value}}</div>    
-                                <div class="basis-20">
-                                    <a>Change</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block mb-2 text-sm font-medium text-gray-900">Método de entrega</label>
-                        <div class="flex bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-3">
-                            <div class="flex-1">
-                                <span><i class="fa-solid fa-circle-dot pr-3"></i>STANDARD TRACKED</span>
-                                <span><i class="fa-solid fa-circle-dot"></i> {{ deliveryMethod?.value}}</span>
-                            </div>
-                            <div>
-                                <span> PEN48.00</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex justify-between">
-                        <a class="text-gray-900 text-sm font-medium py-4" routerLink="/store/content">
-                            <span class=""> <i class="fa-solid fa-angle-left"></i> Volver al carrito </span>
-                        </a>
-                        <button mat-button matStepperNext
-                        class="bg-gray-600 text-white text-sm font-medium rounded p-2" (click)="newOrder()">
-                            Continue to shipping
-                        </button>
-                    </div>
-                </mat-step> -->
-                <mat-step >
-                    <form [formGroup]="paymentForm" (submit)="initPay()">
-                        <ng-template matStepLabel>Pago</ng-template>
-                        <div class="mb-3">
-                            <label class="block mb-2 text-sm font-medium text-gray-900">Pago</label>
-                            <!-- <input type="number" id="cardName" formControlName="cardName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2" placeholder="Name on card" required> -->
-                            <div id="cardNumber" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 mb-2"></div>
-                            <div class="flex">
-                                <div id="cardCvc" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-1/3 p-2.5 mb-2 flex-auto"></div>
-                                <div id="cardExpiry" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-1/3 p-2.5 mb-2 flex-auto"></div>
-                            </div>
-                        </div>
-                        <div class="flex justify-between">
-                            <a class="text-gray-900 text-sm font-medium py-4" routerLink="/store/content">
-                                <span class=""> <i class="fa-solid fa-angle-left"></i> Volver al carrito </span>
-                            </a>
-                            <button type="submit" [disabled]="paymentForm.invalid || paymentForm.disabled"
-                            class="bg-gray-600 text-white text-sm font-medium rounded p-2">
-                                Pagar
-                            </button>
-                        </div>
-                    </form> 
-                    <div>
-                        <p>{{paymentForm.value | json}}</p>
-                        <p>{{paymentForm.invalid | json}}</p>
+        <ng-template #steps>
+          <!-- 1. Mis datos -->
+          <section class="step">
+            <header class="step-head">
+              <h2 class="step-title"><i class="fa-regular fa-user" aria-hidden="true"></i> Mis datos</h2>
+              <button *ngIf="step !== 'datos' && !paying" class="link" (click)="goTo('datos')">Editar</button>
+            </header>
 
-                    </div>
-                </mat-step>
-            </mat-stepper>
-        </div>
-        <div class="flex-auto hidden md:block px-20 border-l border-gray-400">
-            <app-sidebar-checkout></app-sidebar-checkout>
-        </div>
+            <form *ngIf="step === 'datos'; else datosResumen" [formGroup]="contactForm" (ngSubmit)="submitContact()" novalidate class="step-body">
+              <label class="label" for="receipt_email">Correo electrónico</label>
+              <input id="receipt_email" type="email" class="input" formControlName="receipt_email" autocomplete="email" [class.is-invalid]="invalid(contactForm, 'receipt_email')" />
+              <p *ngIf="invalid(contactForm, 'receipt_email')" class="field-error">Ingresá un correo válido.</p>
+              <p class="mt-2 text-xs text-gray-500">A este correo llega el comprobante del pago.</p>
+              <button type="submit" class="btn btn-primary mt-6">Continuar</button>
+            </form>
+            <ng-template #datosResumen>
+              <p class="step-body pt-0 text-sm text-ink">{{ contactForm.value.receipt_email }}</p>
+            </ng-template>
+          </section>
+
+          <!-- 2. Dirección de entrega -->
+          <section class="step" [class.step--locked]="step === 'datos'">
+            <header class="step-head">
+              <h2 class="step-title"><i class="fa-solid fa-truck-fast" aria-hidden="true"></i> Dirección de entrega</h2>
+              <button *ngIf="step === 'pago' && !paying" class="link" (click)="goTo('entrega')">Editar</button>
+            </header>
+
+            <form *ngIf="step === 'entrega'" [formGroup]="deliveryForm" (ngSubmit)="submitDelivery()" novalidate class="step-body">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label class="label" for="firstName">Nombre</label>
+                  <input id="firstName" class="input" formControlName="firstName" autocomplete="given-name" [class.is-invalid]="invalid(deliveryForm, 'firstName')" />
+                  <p *ngIf="invalid(deliveryForm, 'firstName')" class="field-error">Ingresá tu nombre.</p>
+                </div>
+                <div>
+                  <label class="label" for="lastName">Apellido</label>
+                  <input id="lastName" class="input" formControlName="lastName" autocomplete="family-name" [class.is-invalid]="invalid(deliveryForm, 'lastName')" />
+                  <p *ngIf="invalid(deliveryForm, 'lastName')" class="field-error">Ingresá tu apellido.</p>
+                </div>
+
+                <div class="sm:col-span-2">
+                  <label class="label" for="phone">Teléfono</label>
+                  <div class="phone-field" [class.is-invalid]="invalid(deliveryForm, 'phone')">
+                    <span class="phone-prefix" aria-hidden="true">+51</span>
+                    <input id="phone" type="tel" inputmode="numeric" maxlength="9" class="input" formControlName="phone" autocomplete="tel-national" placeholder="987 654 321" aria-describedby="phone-hint" />
+                  </div>
+                  <p *ngIf="invalid(deliveryForm, 'phone'); else phoneHint" class="field-error">Ingresá un celular de 9 dígitos que empiece con 9.</p>
+                  <ng-template #phoneHint><p id="phone-hint" class="mt-1.5 text-xs text-gray-500">Celular de Perú, para coordinar la entrega.</p></ng-template>
+                </div>
+
+                <div class="sm:col-span-2">
+                  <label class="label" for="line1">Dirección</label>
+                  <input id="line1" class="input" formControlName="line1" autocomplete="address-line1" placeholder="Av., calle o jirón y número" [class.is-invalid]="invalid(deliveryForm, 'line1')" />
+                  <p *ngIf="invalid(deliveryForm, 'line1')" class="field-error">Ingresá la dirección de entrega.</p>
+                </div>
+
+                <div class="sm:col-span-2">
+                  <label class="label" for="line2">Referencia <span class="normal-case tracking-normal font-normal text-gray-500">(opcional)</span></label>
+                  <input id="line2" class="input" formControlName="line2" autocomplete="address-line2" placeholder="Departamento, piso, lote o referencia" />
+                </div>
+
+                <div>
+                  <label class="label" for="state">Departamento</label>
+                  <div class="select-field">
+                    <select id="state" class="input" formControlName="state" [class.is-invalid]="invalid(deliveryForm, 'state')">
+                      <option value="" disabled>Elegí un departamento</option>
+                      <option *ngFor="let d of departments" [value]="d">{{ d }}</option>
+                    </select>
+                  </div>
+                  <p *ngIf="invalid(deliveryForm, 'state')" class="field-error">Elegí un departamento.</p>
+                </div>
+                <div>
+                  <label class="label" for="province">Provincia</label>
+                  <input id="province" class="input" formControlName="province" autocomplete="address-level2" [class.is-invalid]="invalid(deliveryForm, 'province')" />
+                  <p *ngIf="invalid(deliveryForm, 'province')" class="field-error">Ingresá la provincia.</p>
+                </div>
+                <div>
+                  <label class="label" for="district">Distrito</label>
+                  <input id="district" class="input" formControlName="district" autocomplete="address-level3" [class.is-invalid]="invalid(deliveryForm, 'district')" />
+                  <p *ngIf="invalid(deliveryForm, 'district')" class="field-error">Ingresá el distrito.</p>
+                </div>
+                <div>
+                  <label class="label" for="postal_code">Código postal <span class="normal-case tracking-normal font-normal text-gray-500">(opcional)</span></label>
+                  <input id="postal_code" inputmode="numeric" maxlength="5" class="input" formControlName="postal_code" autocomplete="postal-code" [class.is-invalid]="invalid(deliveryForm, 'postal_code')" />
+                  <p *ngIf="invalid(deliveryForm, 'postal_code')" class="field-error">Son 5 dígitos.</p>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-full sm:w-auto sm:min-w-[20rem] mt-8" [disabled]="savingDelivery">
+                {{ savingDelivery ? 'Guardando…' : 'Continuar al pago' }}
+              </button>
+            </form>
+
+            <div *ngIf="step === 'pago'" class="step-body pt-0">
+              <div class="selected-box">
+                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                <div class="text-sm">
+                  <p class="font-medium text-ink">{{ fullName }}</p>
+                  <p class="text-gray-600">{{ deliveryForm.value.line1 }}<ng-container *ngIf="deliveryForm.value.line2">, {{ deliveryForm.value.line2 }}</ng-container></p>
+                  <p class="text-gray-600">{{ cityLine }}, {{ deliveryForm.value.state }}, Perú</p>
+                  <p class="text-gray-600">+51 {{ deliveryForm.value.phone }}</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. Pago -->
+          <section class="step" [class.step--locked]="step !== 'pago'">
+            <header class="step-head">
+              <h2 class="step-title"><i class="fa-regular fa-credit-card" aria-hidden="true"></i> Pago</h2>
+            </header>
+
+            <!-- [hidden] y no *ngIf: los campos de Stripe se montan una sola vez. -->
+            <form [hidden]="step !== 'pago'" [formGroup]="paymentForm" (ngSubmit)="initPay()" novalidate class="step-body pt-0">
+              <p class="notice">
+                <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                Si tu banco lo pide, activá las compras por internet en su app antes de pagar.
+              </p>
+
+              <div class="mt-6 flex flex-col gap-5">
+                <div>
+                  <span class="label" id="cardNumber-label">Número de tarjeta</span>
+                  <div id="cardNumber" class="input card-field" [class.is-invalid]="cardErrors.cardNumber"></div>
+                  <p *ngIf="cardErrors.cardNumber" class="field-error">{{ cardErrors.cardNumber }}</p>
+                </div>
+                <div>
+                  <label class="label" for="cardHolder">Nombre del titular</label>
+                  <input id="cardHolder" class="input" formControlName="cardHolder" autocomplete="cc-name" placeholder="Como aparece en la tarjeta" [class.is-invalid]="invalid(paymentForm, 'cardHolder')" />
+                  <p *ngIf="invalid(paymentForm, 'cardHolder')" class="field-error">Ingresá el nombre del titular.</p>
+                </div>
+                <div class="grid grid-cols-2 gap-5">
+                  <div>
+                    <span class="label" id="cardExpiry-label">Vencimiento</span>
+                    <div id="cardExpiry" class="input card-field" [class.is-invalid]="cardErrors.cardExpiry"></div>
+                    <p *ngIf="cardErrors.cardExpiry" class="field-error">{{ cardErrors.cardExpiry }}</p>
+                  </div>
+                  <div>
+                    <span class="label" id="cardCvc-label">Código de seguridad</span>
+                    <div id="cardCvc" class="input card-field" [class.is-invalid]="cardErrors.cardCvc"></div>
+                    <p *ngIf="cardErrors.cardCvc" class="field-error">{{ cardErrors.cardCvc }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <p class="mt-6 text-xs text-gray-600">
+                <strong class="text-ink">Atención:</strong> revisá tus datos antes de pagar. Una vez hecho el pago no podemos cambiar la orden.
+              </p>
+
+              <button type="submit" class="btn btn-primary w-full mt-6" [disabled]="paymentForm.invalid || !cardComplete || paying || paymentBlocked">
+                {{ paying ? 'Procesando pago…' : 'Pagar S/ ' + (sidebar?.totalPrice | number: '1.2-2') }}
+              </button>
+              <p class="mt-3 flex items-center justify-center gap-2 text-xs text-gray-500">
+                <i class="fa-solid fa-lock" aria-hidden="true"></i> Pago procesado por Stripe. No guardamos los datos de tu tarjeta.
+              </p>
+            </form>
+          </section>
+        </ng-template>
+      </div>
+
+      <app-sidebar-checkout class="lg:sticky lg:top-24" [editable]="!paid && !paying"></app-sidebar-checkout>
     </div>
+  </div>
 </div>

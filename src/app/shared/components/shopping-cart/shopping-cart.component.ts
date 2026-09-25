@@ -1,10 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { ItemCart } from '../../interfaces/item.interface';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogConfig, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Observable, concat, finalize, last } from 'rxjs';
 import { StoreService } from '../../../store/services/store.service';
 import { shoeImage } from '../../constants/shoe-images';
+
+// Drawer lateral derecho; los estilos del panel están en `.cart-drawer` (styles.scss).
+export const CART_DRAWER_CONFIG: MatDialogConfig = {
+  position: { right: '0', top: '0' },
+  height: '100vh',
+  width: '420px',
+  maxWidth: '100vw',
+  panelClass: 'cart-drawer',
+};
 
 @Component({
   selector: 'app-shopping-cart',

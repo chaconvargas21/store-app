@@ -1,138 +1,210 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { ValidatorService } from 'src/app/shared/validators/validator.service';
+import { AuthService } from 'src/app/auth/services/auth.service';
+import { SidebarCheckoutComponent } from 'src/app/shared/components/sidebar-checkout/sidebar-checkout.component';
 import { environment } from '../../../../environments/environment';
-import { ActivatedRoute } from '@angular/router';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { StoreService } from '../../services/store.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 declare global {
   interface Window {
     Stripe?: any;
   }
 }
+
+type Step = 'datos' | 'entrega' | 'pago';
+type CardField = 'cardNumber' | 'cardExpiry' | 'cardCvc';
+
+// Departamentos del Perú (más la Provincia Constitucional del Callao).
+const DEPARTMENTS = [
+  'Amazonas', 'Áncash', 'Apurímac', 'Arequipa', 'Ayacucho', 'Cajamarca', 'Callao',
+  'Cusco', 'Huancavelica', 'Huánuco', 'Ica', 'Junín', 'La Libertad', 'Lambayeque',
+  'Lima', 'Loreto', 'Madre de Dios', 'Moquegua', 'Pasco', 'Piura', 'Puno',
+  'San Martín', 'Tacna', 'Tumbes', 'Ucayali',
+];
+
 @Component({
   selector: 'app-checkout',
   standalone: false,
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.scss'],
 })
-export class CheckoutComponent implements OnInit {
-  private readonly STRIPE!: any;
-  private elementsStripe!: any;
-  cardNumber: any;
-  cardCvc: any;
-  cardExpiry: any;
-  infoForm: FormGroup = new FormGroup({});
-  paymentForm: FormGroup = new FormGroup({});
-  id!: string;
-  orderData!: any;
+export class CheckoutComponent implements OnInit, AfterViewInit {
+  @ViewChild(SidebarCheckoutComponent, { static: true }) sidebar?: SidebarCheckoutComponent;
+
+  private readonly STRIPE: any;
+  private cardNumber: any;
+
+  departments = DEPARTMENTS;
+  step: Step = 'datos';
+  savingDelivery = false;
+  paying = false;
+  paid = false;
+  // Una orden anterior de la sesión ya está pagada: no se puede volver a pagar
+  // hasta que postOrder arranque un checkout nuevo.
+  paymentBlocked = false;
+
+  contactForm!: FormGroup;
+  deliveryForm!: FormGroup;
+  paymentForm!: FormGroup;
+
+  // Los campos de Stripe viven en iframes: su estado llega por eventos `change`.
+  private cardState: Record<CardField, boolean> = { cardNumber: false, cardExpiry: false, cardCvc: false };
+  cardErrors: Partial<Record<CardField, string>> = {};
+
+  get cardComplete(): boolean {
+    return Object.values(this.cardState).every(Boolean);
+  }
+
+  get fullName(): string {
+    const { firstName, lastName } = this.deliveryForm.value;
+    return `${firstName.trim()} ${lastName.trim()}`;
+  }
+
+  // Address no tiene campo de distrito: va junto con la provincia en `city`.
+  get cityLine(): string {
+    const { district, province } = this.deliveryForm.value;
+    return `${district.trim()}, ${province.trim()}`;
+  }
 
   constructor(
     private validator: ValidatorService,
     private fb: FormBuilder,
-    private route: ActivatedRoute,
     private store: StoreService,
+    private auth: AuthService,
     private snackBar: MatSnackBar
   ) {
     this.STRIPE = window.Stripe(environment.stripe_pk);
   }
 
   ngOnInit() {
-    this.infoForm = this.fb.group({
-      firstName: ['', [Validators.required]],
-      lastName: ['', [Validators.required]],
+    this.contactForm = this.fb.group({
+      // AuthGuard ya validó el token y dejó el usuario en AuthService.
       receipt_email: [
-        '',
+        this.auth.user.email ?? '',
         [Validators.required, Validators.pattern(this.validator.emailPattern)],
       ],
-      shipping: this.fb.group({
-        address: this.fb.group({
-          city: [''],
-          country: [''],
-          state: [''],
-          postal_code: [''],
-          line1: [''],
-          line2: [''],
-        }),
-        name: [''],
-        carrier: [''],
-        phone: [''],
-      }),
+    });
+
+    const [firstName = '', ...rest] = (this.auth.user.name ?? '').trim().split(/\s+/);
+    this.deliveryForm = this.fb.group({
+      firstName: [firstName, [Validators.required, Validators.pattern(this.validator.namePattern)]],
+      lastName: [rest.join(' '), [Validators.required, Validators.pattern(this.validator.namePattern)]],
+      phone: ['', [Validators.required, Validators.pattern(/^9\d{8}$/)]],
+      line1: ['', [Validators.required, notBlank]],
+      line2: [''],
+      state: ['', Validators.required],
+      province: ['', [Validators.required, notBlank]],
+      district: ['', [Validators.required, notBlank]],
+      postal_code: ['', Validators.pattern(/^\d{5}$/)],
     });
 
     this.paymentForm = this.fb.group({
-      cardNumber: [false, [Validators.required, Validators.requiredTrue]],
-      cardCvc: [false, [Validators.required, Validators.requiredTrue]],
-      cardExpiry: [false, [Validators.required, Validators.requiredTrue]],
+      cardHolder: ['', [Validators.required, notBlank]],
     });
+
     this.loadDetail();
   }
 
-  private createStripeElement = () => {
-    const style = {
-      base: {
-        color: '#000000',
-        fontWeight: 400,
-        fontFamily: "'Poppins', sans-serif",
-        fontSize: '20px',
-        '::placeholder': {
-          color: '#E3E2EC',
+  ngAfterViewInit() {
+    this.createStripeElements();
+  }
+
+  invalid(form: FormGroup, field: string): boolean {
+    const control = form.get(field);
+    return !!control && control.invalid && control.touched;
+  }
+
+  goTo(step: Step) {
+    this.step = step;
+  }
+
+  submitContact() {
+    if (this.contactForm.invalid) {
+      this.contactForm.markAllAsTouched();
+      return;
+    }
+    this.step = 'entrega';
+    this.prefillCardHolder();
+  }
+
+  // Guarda el staging de la orden (POST /api/order) y recién ahí habilita el pago.
+  async submitDelivery() {
+    if (this.deliveryForm.invalid) {
+      this.deliveryForm.markAllAsTouched();
+      return;
+    }
+    const d = this.deliveryForm.value;
+    const payload = {
+      firstName: d.firstName.trim(),
+      lastName: d.lastName.trim(),
+      receipt_email: this.contactForm.value.receipt_email,
+      // Va tal cual al `shipping` del PaymentIntent de Stripe: `name` es el
+      // destinatario y `address.country` un código ISO de dos letras.
+      shipping: {
+        name: this.fullName,
+        phone: `+51 ${d.phone}`,
+        address: {
+          country: 'PE',
+          state: d.state,
+          city: this.cityLine,
+          postal_code: d.postal_code,
+          line1: d.line1.trim(),
+          line2: d.line2.trim(),
         },
       },
-      invalid: {
-        color: '#dc3545',
-      },
     };
-    this.elementsStripe = this.STRIPE.elements({});
 
-    const cardNumber = this.elementsStripe.create('cardNumber', {
-      placeholder: '4242 4242 4242 4242',
-      style,
-      classes: {
-        base: 'input-stripe-custom',
-      },
-    });
-    const cardExpiry = this.elementsStripe.create('cardExpiry', {
-      placeholder: 'MM/AA',
-      style,
-      classes: {
-        base: 'input-stripe-custom',
-      },
-    });
-    const cardCvc = this.elementsStripe.create('cardCvc', {
-      placeholder: '000',
-      style,
-      classes: {
-        base: 'input-stripe-custom',
-      },
-    });
-
-    cardNumber.mount('#cardNumber');
-    cardCvc.mount('#cardCvc');
-    cardExpiry.mount('#cardExpiry');
-
-    this.cardNumber = cardNumber;
-    this.cardCvc = cardCvc;
-    this.cardExpiry = cardExpiry;
-
-    this.cardNumber.addEventListener('change', this.onChangeCard.bind(this));
-    this.cardCvc.addEventListener('change', this.onChangeCvc.bind(this));
-    this.cardExpiry.addEventListener('change', this.onChangeExp.bind(this));
-  };
-
-  onChangeCard({ error }: any) {
-    this.paymentForm.patchValue({ cardNumber: !error });
+    this.savingDelivery = true;
+    try {
+      await this.store.postOrder(payload).toPromise();
+      // postOrder reemplaza la orden de la sesión por un checkout nuevo.
+      this.paymentBlocked = false;
+      this.step = 'pago';
+      this.prefillCardHolder();
+    } catch (e) {
+      const expired = e instanceof HttpErrorResponse && e.status === 401;
+      this.notify(expired ? 'Iniciá sesión para pagar' : 'No se pudo guardar la dirección', 'danger');
+    } finally {
+      this.savingDelivery = false;
+    }
   }
 
-  onChangeCvc({ error }: any) {
-    this.paymentForm.patchValue({ cardCvc: !error });
+  private prefillCardHolder() {
+    const holder = this.paymentForm.get('cardHolder')!;
+    if (!holder.value && this.deliveryForm.valid) holder.setValue(this.fullName);
   }
 
-  onChangeExp({ error }: any) {
-    this.paymentForm.patchValue({ cardExpiry: !error });
+  private createStripeElements() {
+    const style = {
+      base: {
+        color: '#111111',
+        fontFamily: 'Roboto, "Helvetica Neue", Arial, sans-serif',
+        fontSize: '14px',
+        '::placeholder': { color: '#6b7280' },
+      },
+      invalid: { color: '#b91c1c' },
+    };
+    const fonts = [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap' }];
+    const elements = this.STRIPE.elements({ fonts, locale: 'es' });
+
+    const fields: Record<CardField, any> = {
+      cardNumber: elements.create('cardNumber', { style, placeholder: '0000 0000 0000 0000', showIcon: true }),
+      cardExpiry: elements.create('cardExpiry', { style, placeholder: 'MM/AA' }),
+      cardCvc: elements.create('cardCvc', { style, placeholder: '000' }),
+    };
+
+    (Object.keys(fields) as CardField[]).forEach((name) => {
+      fields[name].mount(`#${name}`);
+      fields[name].on('change', ({ complete, error }: any) => {
+        this.cardState[name] = complete;
+        this.cardErrors = { ...this.cardErrors, [name]: error?.message };
+      });
+    });
+    this.cardNumber = fields.cardNumber;
   }
 
   async loadDetail() {
@@ -143,8 +215,8 @@ export class CheckoutComponent implements OnInit {
       if (order?.stripeId) {
         const { status } = (await this.store.confirmOrder().toPromise())!;
         if (status === 'succeeded') {
-          this.paymentForm.disable();
-          this.notify('🔴 Error con orden: ya se ha pagado', 'danger');
+          this.paymentBlocked = true;
+          this.notify('La orden de esta sesión ya fue pagada', 'danger');
         }
       }
     } catch (e) {
@@ -152,34 +224,21 @@ export class CheckoutComponent implements OnInit {
     }
   }
 
-  async newOrder() {
-    try {
-      this.infoForm.disable();
-      await this.store.postOrder(this.infoForm.value).toPromise();
-      // postOrder reemplaza la orden de la sesión por un checkout nuevo: si
-      // loadDetail deshabilitó el pago por una orden anterior ya pagada, se
-      // vuelve a habilitar.
-      this.paymentForm.enable();
-      this.createStripeElement();
-    } catch (e) {
-      this.infoForm.enable();
-      const expired = e instanceof HttpErrorResponse && e.status === 401;
-      this.notify(
-        expired ? 'Iniciá sesión para pagar' : 'No se pudo iniciar el checkout',
-        'danger'
-      );
-    }
-  }
-
   // El backend confirma el pago en la misma llamada (PaymentIntent con
-  // confirm: true): responde 200 si Stripe cobro y 402 si la tarjeta fue
+  // confirm: true): responde 200 si Stripe cobró y 402 si la tarjeta fue
   // rechazada. Stripe.js solo tokeniza la tarjeta.
-  async initPay(): Promise<any> {
-    this.paymentForm.disable();
+  async initPay(): Promise<void> {
+    if (this.paymentForm.invalid || !this.cardComplete) {
+      this.paymentForm.markAllAsTouched();
+      return;
+    }
+    this.paying = true;
 
-    const { token, error } = await this.STRIPE.createToken(this.cardNumber);
+    const { token, error } = await this.STRIPE.createToken(this.cardNumber, {
+      name: this.paymentForm.value.cardHolder.trim(),
+    });
     if (error) {
-      this.paymentForm.enable();
+      this.paying = false;
       this.notify(error.message, 'danger');
       return;
     }
@@ -187,33 +246,31 @@ export class CheckoutComponent implements OnInit {
     try {
       const { data } = await this.store.sendPayment(token.id).toPromise();
       if (data.status === 'succeeded') {
-        this.notify('Pago realizado. ¡Gracias por tu compra!', 'success');
+        this.paid = true;
+        this.sidebar?.getItemsShoppingCart();
+        this.notify('Pago realizado', 'success');
       }
     } catch (e) {
       const status = e instanceof HttpErrorResponse ? e.status : 0;
       if (status === 402) {
         // El carrito se conserva en el backend: se puede reintentar con otra tarjeta.
-        this.paymentForm.enable();
         this.notify('Tarjeta rechazada. Probá con otra tarjeta', 'danger');
-        return;
-      }
-      if (status === 409) {
+      } else if (status === 409) {
         // La orden ya fue pagada o hay otro intento en curso: no reintentar.
         const message = e instanceof HttpErrorResponse ? e.error?.error : null;
+        this.paymentBlocked = true;
         this.notify(message || 'La orden ya está en proceso de pago', 'danger');
-        return;
+      } else {
+        // 500: reintentar es seguro (el backend escribe la orden antes de
+        // cobrar, reembolsa si no pudo registrar el pago y responde 409 si ya
+        // se pagó).
+        this.notify(
+          status === 401 ? 'Tu sesión expiró, volvé a iniciar sesión' : 'Algo ocurrió mientras procesábamos el pago',
+          'danger'
+        );
       }
-      if (status === 500) {
-        // Reintentar es seguro: el backend escribe la orden antes de cobrar,
-        // reembolsa si no pudo registrar el pago, y responde 409 si ya se pagó.
-        this.paymentForm.enable();
-      }
-      this.notify(
-        status === 401
-          ? 'Tu sesión expiró, volvé a iniciar sesión'
-          : 'Algo ocurrio mientras procesaba el pago',
-        'danger'
-      );
+    } finally {
+      this.paying = false;
     }
   }
 
@@ -223,4 +280,8 @@ export class CheckoutComponent implements OnInit {
       panelClass: type ? `snackbar-${type}` : undefined,
     });
   }
+}
+
+function notBlank(control: AbstractControl) {
+  return typeof control.value === 'string' && !control.value.trim() ? { blank: true } : null;
 }
