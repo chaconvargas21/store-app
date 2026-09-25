@@ -147,17 +147,18 @@ Stripe; tiene que ser de la misma cuenta que la `STRIPE_SK` del backend).
 
 ### Estilos
 
-- **Framework**: TailwindCSS (v3.0.23) + Angular Material (tema indigo-pink)
+- **Framework**: TailwindCSS (v3.0.23) + Angular Material (tema m2 indigo-pink)
 - **Plugins**: `@tailwindcss/forms`, `@tailwindcss/typography`
-- **Estilos globales**: `src/sass/styles.scss`
+- **Estilos globales**: `src/sass/styles.scss`. El tema de Material se define ahí y solo incluye lo que la app
+  usa (`typography-hierarchy`, `dialog-theme`, `snack-bar-theme`); no se carga el prebuilt `indigo-pink.css`
+  (110 kB). Si se agrega otro componente de Material, sumar su `mat.<componente>-theme` en ese bloque.
 - **Estilos de componentes**: SCSS (configurado en los schematics de `angular.json`)
 
 ### Dependencias importantes
 
 - **RxJS 7.8**: `Observable`, `map`, `catchError`, `of`
 - **Stripe.js**: tokenización de tarjetas en el checkout
-- **MatSnackBar** (Angular Material): mensajes de feedback al usuario; el checkout usa el helper `notify(message, type)` con las clases globales `snackbar-success`/`snackbar-danger` (`src/sass/styles.scss`). Reemplazó a `ngx-toast-notifications`.
-- **SweetAlert2**: diálogos modales
+- **MatSnackBar** (Angular Material): mensajes de feedback al usuario (también los errores de `login`/`sign-in`); el checkout usa el helper `notify(message, type)` con las clases globales `snackbar-success`/`snackbar-danger` (`src/sass/styles.scss`). Reemplazó a `ngx-toast-notifications`.
 - **Angular Material y CDK**: componentes de UI y accesibilidad
 
 ## Tipado
@@ -255,21 +256,22 @@ Estado al 2026-09-25. Cada pendiente con su solución; lo que se resuelve en `st
   `4242 4242 4242 4242`. Safari queda fuera (limitación aceptada de cookies de terceros, ver `store-back`).
 - [ ] **Verificar catálogo y navbar en el navegador** (commit `d8d2b83`): listado desde `/api/product`,
   filtro por categoría (`?categoria=`), búsqueda (`?q=`), anclas Contacto/Newsletter e imágenes del
-  carrito y del resumen del checkout. Solución: recorrerlo en GitHub Pages; lo que falle, como bug.
+  carrito y del resumen del checkout. Incluye el tema de Material recortado (commit `1a6b0ae`): drawer del
+  carrito, snackbars verde/rojo y tipografía. Solución: recorrerlo en GitHub Pages; lo que falle, como bug.
 - [ ] **Palabras clave de categorías**: el filtro busca palabras (`bota`, `zapatilla`, `oxford`…) en
   `product`/`manufacturer`/`material` (`shared/constants/categories.ts`); si no coinciden con los
   productos reales, las categorías salen vacías. Solución: listar `product` de los 20 productos
   (`GET /api/product`) y ajustar las palabras de cada categoría para que ninguna quede vacía.
-- [ ] **`npm audit`**: 47 vulnerabilidades (2 críticas, 27 altas); Dependabot reporta 83 (1 crítica,
-  32 altas) en `main`. Solución: `npm audit --omit=dev` para separar lo que llega al bundle de lo que
-  solo toca build/tests; actualizar primero las dependencias directas afectadas, `npm audit fix` sin
-  `--force`, y build + tests después de cada paso. Lo que exija `--force` va a un cambio aparte.
 - [ ] **Runner de CI**: `ubuntu-latest` pasa a Ubuntu 26 desde el 2026-10-19. Solución: revisar el primer
   build después de esa fecha; si falla, fijar `runs-on: ubuntu-24.04` mientras se corrige.
 - [ ] **Agregar al carrito con `GET`** (baja): `addItem` usa `GET /api/cart/:id`, que modifica estado.
   Solución en tres pasos para no cortar producción: (1) `store-back` agrega `POST /api/cart/:id` sin
   quitar el `GET`; (2) este repo pasa `addItem` a `POST`; (3) `store-back` borra el `GET`.
-- [ ] **Warnings del build** (no bloquean): bundle inicial de 642 kB contra un budget de 500 kB;
-  `sweetalert2` es CommonJS. Solución: reemplazar `sweetalert2` (solo se usa en `login` y `sign-in`) por
-  `MatSnackBar`, que ya está en el proyecto, y revisar con `ng build --stats-json` qué más entra en el
-  bundle inicial que pueda ir a módulos lazy.
+- [ ] **Migrar al builder `@angular/build:application`** (esbuild). Quedan 5 vulnerabilidades moderadas
+  (`uuid` vía `webpack-dev-server` de `@angular-devkit/build-angular`, solo en `ng serve`; `npm audit fix
+  --force` propone Angular 22) y el bundle inicial sigue en 541 kB contra el budget de 500 kB (el `main` es
+  casi todo Angular). Solución: `ng update @angular/cli --name use-application-builder`, cambiar la
+  devDependency a `@angular/build` y ajustar el CI: la salida pasa a `dist/store-app/browser/` (el `mv` del
+  `404.html` y el `build_dir` del deploy). Build + tests, y recién ahí revisar si hace falta subir el budget.
+- [ ] **Budget de `navbar.component.scss`**: 2,51 kB contra 2 kB (warning, no bloquea). Solución: subir el
+  `anyComponentStyle` a 4 kB en `angular.json` o pasar estilos del navbar a clases de Tailwind.
