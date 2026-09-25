@@ -256,9 +256,9 @@ Estado al 2026-09-25. Cada pendiente con su solución; lo que se resuelve en `st
   y el backend local corre en el 4000). Solución: borrarlo; `environment.ts` ya apunta a
   `http://localhost:4000/api` y el backend tiene CORS para `localhost:4200`.
 - [ ] **Tests** sin correr desde la migración a Angular 21. `checkout.component.spec.ts` seguramente falla:
-  no provee `FormBuilder`/`ActivatedRoute`/`StoreService`/`MatSnackBar` y el constructor llama a
+  no provee `FormBuilder`/`StoreService`/`AuthService`/`MatSnackBar` y el constructor llama a
   `window.Stripe`. Solución: correr `ng test --watch=false`, agregar los providers (mocks de
-  `StoreService` y `ActivatedRoute`, stub de `window.Stripe` en el `beforeEach`) y sumar los tests al CI
+  `StoreService` y `AuthService`, stub de `window.Stripe` en el `beforeEach`) y sumar los tests al CI
   antes del build.
 - [ ] **`karma`** fijado en `~6.3.0` y `@angular/build` 21 pide `^6.4.0` (warning `ERESOLVE` en `npm ci`).
   Solución: subir a `~6.4.0` junto con el arreglo de los tests.
