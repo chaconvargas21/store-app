@@ -135,8 +135,10 @@ un `client_secret`: ese era el modelo viejo de confirmación en el navegador y y
   `payment_intent.succeeded` en el backend.
 - Tarjetas de prueba: `4242 4242 4242 4242` (aprobada), `4000 0000 0000 0002` (rechazada),
   `4000 0025 0000 3155` (3DS → falla por diseño).
-- Estado: implementado en el commit `53db8b6`; **falta verificarlo en el navegador**. El lado del backend
-  está verificado con la colección Bruno (`~/Documents/bruno/checkout`).
+- Estado: verificado en producción el 2026-09-25 (GitHub Pages + Cloud Run, Chrome headless con
+  Puppeteer): `AuthGuard`, 402 → snackbar rojo y reintento, 401 → sesión expirada, 200 → snackbar verde y
+  pantalla de pagado, recarga → "ya fue pagada". Único fallo: el email no se precarga (ver Pendientes).
+  Usuario de prueba: `qa+checkout202609252305@example.com` (una orden pagada del Mocasín, modo test).
 
 ### Configuración por entorno
 
@@ -257,11 +259,6 @@ Estado al 2026-09-25. Cada pendiente con su solución; lo que se resuelve en `st
 
 ### Alta
 
-- [ ] **Verificar el checkout en el navegador** (GitHub Pages contra Cloud Run). El backend ya se verificó
-  por API en producción (2026-09-25: 402 → reintento 200 sobre la misma `Order`, stock, emails, eventos);
-  falta lo del front: redirección de `AuthGuard`, snackbar rojo en 402 y reintento, snackbar verde en 200,
-  orden ya pagada al recargar y sesión expirada (401). Solución: recorrerlo con `4000 0000 0000 0002` y
-  `4242 4242 4242 4242`. Safari queda fuera (limitación aceptada de cookies de terceros, ver `store-back`).
 - [ ] **Verificar catálogo, navbar y tema de Material en el navegador**: listado desde `/api/product`,
   filtro por categoría (`?categoria=`, con las palabras clave de `categories.ts`), búsqueda (`?q=`), anclas
   Contacto/Newsletter e imágenes del carrito y del resumen del checkout. El tema de Material recortado
@@ -270,6 +267,12 @@ Estado al 2026-09-25. Cada pendiente con su solución; lo que se resuelve en `st
   bug. Si el tema se ve roto, revertir `1a6b0ae` mientras se corrige.
 
 ### Media
+
+- [ ] **El checkout no precarga el email**: `CheckoutComponent` toma `receipt_email` de `AuthService.user`,
+  que lo llena `validateToken()` con la respuesta de `GET /auth/renew`, pero `revalidateToken` de
+  `store-back` solo devuelve `uid`, `name` y `token` (los saca del JWT). El usuario tiene que tipear el
+  email a mano ("Ingresá un correo válido"). Solución en `store-back`: que `revalidateToken` busque el
+  `Customer` por `uid` y devuelva `email` (el front ya lo lee); después, un test en `auth.service.spec.ts`.
 
 - [ ] **Runner de CI**: `ubuntu-latest` pasa a Ubuntu 26 desde el **2026-10-19**. Solución: revisar el
   primer build después de esa fecha; si falla, fijar `runs-on: ubuntu-24.04` mientras se corrige.
