@@ -36,16 +36,22 @@ jobs:
       - name: Install dependencies
         run: npm i
         
+      # Run unit tests (Karma + ChromeHeadless)
+      - name: Run tests
+        run: npm run test:ci
+
       # Build app for production
       - name: Build app bundle
         run: npm run build:prod
 
       # Route file renaming
       - name : Rename index for routing
+        if: github.event_name != 'pull_request'
         run: mv dist/store-app/index.html dist/store-app/404.html 
 
-      # Deploy to Github pages
+      # Deploy to Github pages (los PR solo corren tests y build)
       - name: Deploy to Pages  
+        if: github.event_name != 'pull_request'
         uses: crazy-max/ghaction-github-pages@v4.0.0
         with:
           build_dir: dist/store-app

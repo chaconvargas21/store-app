@@ -17,7 +17,7 @@ modular organizada por features. El backend es `../store-back` (API REST Express
 - **Modo watch**: `npm run watch` — recompila ante cambios
 
 ### Tests
-- **Correr todos los tests**: `npm test`
+- **Correr todos los tests**: `npm test` (watch, abre Chrome) o `npm run test:ci` (una corrida, headless; es lo que usa el CI)
 - **Tests de un solo componente**: `npm test -- --include='**/component-name.spec.ts'`
 - **Tests con coverage**: `npm test -- --no-watch --code-coverage`
 
@@ -214,11 +214,17 @@ en la sesión (cookie de `express-session`).
 
 ## Tests
 
-Todos los componentes tienen su `.spec.ts`. Los tests usan Karma + Jasmine.
+Todos los componentes tienen su `.spec.ts`. Los tests usan Karma + Jasmine (`@angular-devkit/build-angular:karma`,
+sin `src/test.ts`: el builder encuentra los `*.spec.ts` e inicializa el `TestBed`; `zone.js/testing` va en `polyfills`).
 
-- Corren en modo watch por defecto; agregar `--no-watch` para una sola corrida.
+- `npm test` corre en modo watch con Chrome; `npm run test:ci` hace una sola corrida con `ChromeHeadlessCI`
+  (`--no-sandbox`, porque los runners de Ubuntu 24+ bloquean el sandbox de Chrome).
 - Karma sirve los tests en `http://localhost:9876` (configurable en `karma.conf.js`).
-- El navegador por defecto es Chrome (headless).
+- Specs livianos: cada componente se declara solo, con los módulos de sus directivas (`RouterModule` +
+  `provideRouter([])`, `ReactiveFormsModule`) y `CUSTOM_ELEMENTS_SCHEMA` para los `app-*` hijos. Los que llaman
+  al API usan un mock de `StoreService`/`AuthService` o `provideHttpClient()` + `provideHttpClientTesting()`.
+- `checkout.component.spec.ts` stubbea `window.Stripe` (y lo restaura en `afterEach`) y cubre las ramas de
+  `initPay` (200 / 402 / 409 / 401) y la orden ya pagada de `loadDetail`.
 
 ## Git y commits
 
@@ -227,9 +233,11 @@ Todos los componentes tienen su `.spec.ts`. Los tests usan Karma + Jasmine.
 
 ## CI / deploy
 
-- `.github/workflows/main.yml` corre en cada push a `main`: `npm i` → `npm run build:prod` → renombra
+- `.github/workflows/main.yml` corre en cada push a `main`: `npm i` → `npm run test:ci` → `npm run build:prod` → renombra
   `index.html` a `404.html` (routing de la SPA) → deploy a GitHub Pages
   (`https://chaconvargas21.github.io/store-app/`, responde HTTP 404 a propósito por ese renombre).
+- En los `pull_request` a `main` corre solo hasta el build: el renombre y el deploy tienen
+  `if: github.event_name != 'pull_request'` (antes un PR publicaba su versión en Pages sin mergearse).
 - Usa **Node 22** (Angular 21 exige `^20.19 || ^22.12 || >=24`; con Node 18 la CLI sale con exit code 3).
 - Si el build pasa local pero falla en CI, reproducir con instalación limpia (`rm -rf node_modules && npm ci`):
   un `node_modules` viejo puede esconder librerías View Engine que solo compilaban gracias a `ngcc`
@@ -252,16 +260,6 @@ Estado al 2026-09-25. Cada pendiente con su solución; lo que se resuelve en `st
   `product`/`manufacturer`/`material` (`shared/constants/categories.ts`); si no coinciden con los
   productos reales, las categorías salen vacías. Solución: listar `product` de los 20 productos
   (`GET /api/product`) y ajustar las palabras de cada categoría para que ninguna quede vacía.
-- [ ] **`src/proxy.conf.json`** sin trackear y sin usar (no está en `angular.json`, apunta al puerto 3000
-  y el backend local corre en el 4000). Solución: borrarlo; `environment.ts` ya apunta a
-  `http://localhost:4000/api` y el backend tiene CORS para `localhost:4200`.
-- [ ] **Tests** sin correr desde la migración a Angular 21. `checkout.component.spec.ts` seguramente falla:
-  no provee `FormBuilder`/`StoreService`/`AuthService`/`MatSnackBar` y el constructor llama a
-  `window.Stripe`. Solución: correr `ng test --watch=false`, agregar los providers (mocks de
-  `StoreService` y `AuthService`, stub de `window.Stripe` en el `beforeEach`) y sumar los tests al CI
-  antes del build.
-- [ ] **`karma`** fijado en `~6.3.0` y `@angular/build` 21 pide `^6.4.0` (warning `ERESOLVE` en `npm ci`).
-  Solución: subir a `~6.4.0` junto con el arreglo de los tests.
 - [ ] **`npm audit`**: 47 vulnerabilidades (2 críticas, 27 altas); Dependabot reporta 83 (1 crítica,
   32 altas) en `main`. Solución: `npm audit --omit=dev` para separar lo que llega al bundle de lo que
   solo toca build/tests; actualizar primero las dependencias directas afectadas, `npm audit fix` sin
