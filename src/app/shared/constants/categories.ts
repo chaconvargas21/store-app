@@ -8,19 +8,24 @@ export interface ShoeCategory {
 
 // El backend no tiene categorías: se filtra en el cliente buscando estas
 // palabras clave en el nombre, la marca y el material del producto.
+// Ajustadas a los 20 productos de /api/product (categories.spec.ts las verifica):
+// ojo con las marcas, `sport` o `urban` matchean "Andes Sport" / "Urban Step".
+const CASUAL_KEYWORDS = ['casual', 'urbana', 'lona', 'nautico', 'alpargata', 'pantufla'];
+
 export const SHOE_CATEGORIES: ShoeCategory[] = [
-  { slug: 'zapatillas', label: 'Zapatillas', keywords: ['zapatilla', 'sneaker', 'tenis', 'running'] },
-  { slug: 'botas', label: 'Botas', keywords: ['bota', 'botin', 'boot'] },
-  { slug: 'formal', label: 'Formal', keywords: ['formal', 'oxford', 'mocasin', 'vestir'] },
-  { slug: 'casual', label: 'Casual', keywords: ['casual', 'urbano', 'lona'] },
-  { slug: 'sandalias', label: 'Sandalias', keywords: ['sandalia', 'sandal'] },
+  { slug: 'zapatillas', label: 'Zapatillas', keywords: ['zapatilla', 'sneaker', 'tenis'] },
+  { slug: 'botas', label: 'Botas', keywords: ['bota', 'botin', 'borcego'] },
+  { slug: 'formal', label: 'Formal', keywords: ['formal', 'oxford', 'derby', 'mocasin', 'stiletto'] },
+  { slug: 'casual', label: 'Casual', keywords: CASUAL_KEYWORDS },
+  { slug: 'sandalias', label: 'Sandalias', keywords: ['sandalia', 'ojota'] },
 ];
 
 // Colecciones destacadas (home, navbar y página de colecciones).
+// Los productos no tienen un dato de "edición limitada": se usan los materiales especiales.
 export const SHOE_COLLECTIONS = [
-  { slug: 'running', label: 'Running', keywords: ['running', 'deportiv', 'sport'] },
-  { slug: 'casual', label: 'Casual', keywords: ['casual', 'urbano', 'lona'] },
-  { slug: 'edicion-limitada', label: 'Edición limitada', keywords: ['limitad', 'edicion', 'premium'] },
+  { slug: 'running', label: 'Running', keywords: ['running', 'trail', 'malla tecnica'] },
+  { slug: 'casual', label: 'Casual', keywords: CASUAL_KEYWORDS },
+  { slug: 'edicion-limitada', label: 'Edición limitada', keywords: ['charol', 'gamuza', 'nobuk'] },
 ];
 
 const ALL_FILTERS: ShoeCategory[] = [...SHOE_CATEGORIES, ...SHOE_COLLECTIONS];

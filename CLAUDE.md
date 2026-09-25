@@ -86,6 +86,8 @@ src/app/
 - `getItems()` — lista todos los productos (`GET /api/product` → `products`)
 - `getItemById(id)` — trae un producto (`GET /api/product/:id` → `product`). `Item` replica el modelo
   `Product` del backend; las categorías de calzado se filtran en el cliente (`shared/constants/categories.ts`)
+  con palabras clave ajustadas a los 20 productos reales; `categories.spec.ts` verifica que ninguna categoría
+  quede vacía. Si cambian los productos en `store-back`, actualizar las dos listas.
 - `addItem(id)` — agrega al carrito
 - `removeItemCartShopping(id)` — quita del carrito
 - `getItemsCartShopping()` — contenido del carrito
@@ -258,10 +260,6 @@ Estado al 2026-09-25. Cada pendiente con su solución; lo que se resuelve en `st
   filtro por categoría (`?categoria=`), búsqueda (`?q=`), anclas Contacto/Newsletter e imágenes del
   carrito y del resumen del checkout. Incluye el tema de Material recortado (commit `1a6b0ae`): drawer del
   carrito, snackbars verde/rojo y tipografía. Solución: recorrerlo en GitHub Pages; lo que falle, como bug.
-- [ ] **Palabras clave de categorías**: el filtro busca palabras (`bota`, `zapatilla`, `oxford`…) en
-  `product`/`manufacturer`/`material` (`shared/constants/categories.ts`); si no coinciden con los
-  productos reales, las categorías salen vacías. Solución: listar `product` de los 20 productos
-  (`GET /api/product`) y ajustar las palabras de cada categoría para que ninguna quede vacía.
 - [ ] **Runner de CI**: `ubuntu-latest` pasa a Ubuntu 26 desde el 2026-10-19. Solución: revisar el primer
   build después de esa fecha; si falla, fijar `runs-on: ubuntu-24.04` mientras se corrige.
 - [ ] **Agregar al carrito con `GET`** (baja): `addItem` usa `GET /api/cart/:id`, que modifica estado.
