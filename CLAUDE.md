@@ -17,7 +17,7 @@ modular organizada por features. El backend es `../store-back` (API REST Express
 - **Modo watch**: `npm run watch` — recompila ante cambios
 
 ### Tests
-- **Correr todos los tests**: `npm test`
+- **Correr todos los tests**: `npm test` (watch, abre Chrome) o `npm run test:ci` (una corrida, headless; es lo que usa el CI)
 - **Tests de un solo componente**: `npm test -- --include='**/component-name.spec.ts'`
 - **Tests con coverage**: `npm test -- --no-watch --code-coverage`
 
@@ -147,17 +147,18 @@ Stripe; tiene que ser de la misma cuenta que la `STRIPE_SK` del backend).
 
 ### Estilos
 
-- **Framework**: TailwindCSS (v3.0.23) + Angular Material (tema indigo-pink)
+- **Framework**: TailwindCSS (v3.0.23) + Angular Material (tema m2 indigo-pink)
 - **Plugins**: `@tailwindcss/forms`, `@tailwindcss/typography`
-- **Estilos globales**: `src/sass/styles.scss`
+- **Estilos globales**: `src/sass/styles.scss`. El tema de Material se define ahí y solo incluye lo que la app
+  usa (`typography-hierarchy`, `dialog-theme`, `snack-bar-theme`); no se carga el prebuilt `indigo-pink.css`
+  (110 kB). Si se agrega otro componente de Material, sumar su `mat.<componente>-theme` en ese bloque.
 - **Estilos de componentes**: SCSS (configurado en los schematics de `angular.json`)
 
 ### Dependencias importantes
 
 - **RxJS 7.8**: `Observable`, `map`, `catchError`, `of`
 - **Stripe.js**: tokenización de tarjetas en el checkout
-- **MatSnackBar** (Angular Material): mensajes de feedback al usuario; el checkout usa el helper `notify(message, type)` con las clases globales `snackbar-success`/`snackbar-danger` (`src/sass/styles.scss`). Reemplazó a `ngx-toast-notifications`.
-- **SweetAlert2**: diálogos modales
+- **MatSnackBar** (Angular Material): mensajes de feedback al usuario (también los errores de `login`/`sign-in`); el checkout usa el helper `notify(message, type)` con las clases globales `snackbar-success`/`snackbar-danger` (`src/sass/styles.scss`). Reemplazó a `ngx-toast-notifications`.
 - **Angular Material y CDK**: componentes de UI y accesibilidad
 
 ## Tipado
@@ -214,11 +215,17 @@ en la sesión (cookie de `express-session`).
 
 ## Tests
 
-Todos los componentes tienen su `.spec.ts`. Los tests usan Karma + Jasmine.
+Todos los componentes tienen su `.spec.ts`. Los tests usan Karma + Jasmine (`@angular-devkit/build-angular:karma`,
+sin `src/test.ts`: el builder encuentra los `*.spec.ts` e inicializa el `TestBed`; `zone.js/testing` va en `polyfills`).
 
-- Corren en modo watch por defecto; agregar `--no-watch` para una sola corrida.
+- `npm test` corre en modo watch con Chrome; `npm run test:ci` hace una sola corrida con `ChromeHeadlessCI`
+  (`--no-sandbox`, porque los runners de Ubuntu 24+ bloquean el sandbox de Chrome).
 - Karma sirve los tests en `http://localhost:9876` (configurable en `karma.conf.js`).
-- El navegador por defecto es Chrome (headless).
+- Specs livianos: cada componente se declara solo, con los módulos de sus directivas (`RouterModule` +
+  `provideRouter([])`, `ReactiveFormsModule`) y `CUSTOM_ELEMENTS_SCHEMA` para los `app-*` hijos. Los que llaman
+  al API usan un mock de `StoreService`/`AuthService` o `provideHttpClient()` + `provideHttpClientTesting()`.
+- `checkout.component.spec.ts` stubbea `window.Stripe` (y lo restaura en `afterEach`) y cubre las ramas de
+  `initPay` (200 / 402 / 409 / 401) y la orden ya pagada de `loadDetail`.
 
 ## Git y commits
 
@@ -227,9 +234,11 @@ Todos los componentes tienen su `.spec.ts`. Los tests usan Karma + Jasmine.
 
 ## CI / deploy
 
-- `.github/workflows/main.yml` corre en cada push a `main`: `npm i` → `npm run build:prod` → renombra
+- `.github/workflows/main.yml` corre en cada push a `main`: `npm i` → `npm run test:ci` → `npm run build:prod` → renombra
   `index.html` a `404.html` (routing de la SPA) → deploy a GitHub Pages
   (`https://chaconvargas21.github.io/store-app/`, responde HTTP 404 a propósito por ese renombre).
+- En los `pull_request` a `main` corre solo hasta el build: el renombre y el deploy tienen
+  `if: github.event_name != 'pull_request'` (antes un PR publicaba su versión en Pages sin mergearse).
 - Usa **Node 22** (Angular 21 exige `^20.19 || ^22.12 || >=24`; con Node 18 la CLI sale con exit code 3).
 - Si el build pasa local pero falla en CI, reproducir con instalación limpia (`rm -rf node_modules && npm ci`):
   un `node_modules` viejo puede esconder librerías View Engine que solo compilaban gracias a `ngcc`
@@ -247,31 +256,22 @@ Estado al 2026-09-25. Cada pendiente con su solución; lo que se resuelve en `st
   `4242 4242 4242 4242`. Safari queda fuera (limitación aceptada de cookies de terceros, ver `store-back`).
 - [ ] **Verificar catálogo y navbar en el navegador** (commit `d8d2b83`): listado desde `/api/product`,
   filtro por categoría (`?categoria=`), búsqueda (`?q=`), anclas Contacto/Newsletter e imágenes del
-  carrito y del resumen del checkout. Solución: recorrerlo en GitHub Pages; lo que falle, como bug.
+  carrito y del resumen del checkout. Incluye el tema de Material recortado (commit `1a6b0ae`): drawer del
+  carrito, snackbars verde/rojo y tipografía. Solución: recorrerlo en GitHub Pages; lo que falle, como bug.
 - [ ] **Palabras clave de categorías**: el filtro busca palabras (`bota`, `zapatilla`, `oxford`…) en
   `product`/`manufacturer`/`material` (`shared/constants/categories.ts`); si no coinciden con los
   productos reales, las categorías salen vacías. Solución: listar `product` de los 20 productos
   (`GET /api/product`) y ajustar las palabras de cada categoría para que ninguna quede vacía.
-- [ ] **`src/proxy.conf.json`** sin trackear y sin usar (no está en `angular.json`, apunta al puerto 3000
-  y el backend local corre en el 4000). Solución: borrarlo; `environment.ts` ya apunta a
-  `http://localhost:4000/api` y el backend tiene CORS para `localhost:4200`.
-- [ ] **Tests** sin correr desde la migración a Angular 21. `checkout.component.spec.ts` seguramente falla:
-  no provee `FormBuilder`/`StoreService`/`AuthService`/`MatSnackBar` y el constructor llama a
-  `window.Stripe`. Solución: correr `ng test --watch=false`, agregar los providers (mocks de
-  `StoreService` y `AuthService`, stub de `window.Stripe` en el `beforeEach`) y sumar los tests al CI
-  antes del build.
-- [ ] **`karma`** fijado en `~6.3.0` y `@angular/build` 21 pide `^6.4.0` (warning `ERESOLVE` en `npm ci`).
-  Solución: subir a `~6.4.0` junto con el arreglo de los tests.
-- [ ] **`npm audit`**: 47 vulnerabilidades (2 críticas, 27 altas); Dependabot reporta 83 (1 crítica,
-  32 altas) en `main`. Solución: `npm audit --omit=dev` para separar lo que llega al bundle de lo que
-  solo toca build/tests; actualizar primero las dependencias directas afectadas, `npm audit fix` sin
-  `--force`, y build + tests después de cada paso. Lo que exija `--force` va a un cambio aparte.
 - [ ] **Runner de CI**: `ubuntu-latest` pasa a Ubuntu 26 desde el 2026-10-19. Solución: revisar el primer
   build después de esa fecha; si falla, fijar `runs-on: ubuntu-24.04` mientras se corrige.
 - [ ] **Agregar al carrito con `GET`** (baja): `addItem` usa `GET /api/cart/:id`, que modifica estado.
   Solución en tres pasos para no cortar producción: (1) `store-back` agrega `POST /api/cart/:id` sin
   quitar el `GET`; (2) este repo pasa `addItem` a `POST`; (3) `store-back` borra el `GET`.
-- [ ] **Warnings del build** (no bloquean): bundle inicial de 642 kB contra un budget de 500 kB;
-  `sweetalert2` es CommonJS. Solución: reemplazar `sweetalert2` (solo se usa en `login` y `sign-in`) por
-  `MatSnackBar`, que ya está en el proyecto, y revisar con `ng build --stats-json` qué más entra en el
-  bundle inicial que pueda ir a módulos lazy.
+- [ ] **Migrar al builder `@angular/build:application`** (esbuild). Quedan 5 vulnerabilidades moderadas
+  (`uuid` vía `webpack-dev-server` de `@angular-devkit/build-angular`, solo en `ng serve`; `npm audit fix
+  --force` propone Angular 22) y el bundle inicial sigue en 541 kB contra el budget de 500 kB (el `main` es
+  casi todo Angular). Solución: `ng update @angular/cli --name use-application-builder`, cambiar la
+  devDependency a `@angular/build` y ajustar el CI: la salida pasa a `dist/store-app/browser/` (el `mv` del
+  `404.html` y el `build_dir` del deploy). Build + tests, y recién ahí revisar si hace falta subir el budget.
+- [ ] **Budget de `navbar.component.scss`**: 2,51 kB contra 2 kB (warning, no bloquea). Solución: subir el
+  `anyComponentStyle` a 4 kB en `angular.json` o pasar estilos del navbar a clases de Tailwind.

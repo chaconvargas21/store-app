@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {MatDialogModule} from '@angular/material/dialog';
-import {MatStepperModule} from '@angular/material/stepper';
 import { StoreModule } from '../store/store.module';
 import { ErrorPageComponent } from './pages/error-page/error-page.component';
 import { CardListComponent } from './components/card-list/card-list.component';
@@ -35,7 +34,6 @@ import { StoreRoutingModule } from '../store/store-routing.module';
   ],
   exports: [
     MatDialogModule,
-    MatStepperModule,
     ErrorPageComponent,
     CardListComponent,
     CardItemComponent,
