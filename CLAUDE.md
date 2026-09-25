@@ -249,27 +249,41 @@ sin `src/test.ts`: el builder encuentra los `*.spec.ts` e inicializa el `TestBed
 ## Pendientes
 
 Estado al 2026-09-25. Cada pendiente con su solución; lo que se resuelve en `store-back` o
-`worker-service` vive en el `CLAUDE.md` de ese repo.
+`worker-service` vive en el `CLAUDE.md` de ese repo. Prioridad:
+
+- **Alta**: afecta a producción hoy o está en producción sin verificar.
+- **Media**: riesgo acotado o con fecha; conviene resolverlo en las próximas semanas.
+- **Baja**: mejoras sin impacto visible para el usuario.
+
+### Alta
 
 - [ ] **Verificar el checkout en el navegador** (GitHub Pages contra Cloud Run). El backend ya se verificó
   por API en producción (2026-09-25: 402 → reintento 200 sobre la misma `Order`, stock, emails, eventos);
   falta lo del front: redirección de `AuthGuard`, snackbar rojo en 402 y reintento, snackbar verde en 200,
   orden ya pagada al recargar y sesión expirada (401). Solución: recorrerlo con `4000 0000 0000 0002` y
   `4242 4242 4242 4242`. Safari queda fuera (limitación aceptada de cookies de terceros, ver `store-back`).
-- [ ] **Verificar catálogo y navbar en el navegador** (commit `d8d2b83`): listado desde `/api/product`,
-  filtro por categoría (`?categoria=`), búsqueda (`?q=`), anclas Contacto/Newsletter e imágenes del
-  carrito y del resumen del checkout. Incluye el tema de Material recortado (commit `1a6b0ae`): drawer del
-  carrito, snackbars verde/rojo y tipografía. Solución: recorrerlo en GitHub Pages; lo que falle, como bug.
-- [ ] **Runner de CI**: `ubuntu-latest` pasa a Ubuntu 26 desde el 2026-10-19. Solución: revisar el primer
-  build después de esa fecha; si falla, fijar `runs-on: ubuntu-24.04` mientras se corrige.
-- [ ] **Agregar al carrito con `GET`** (baja): `addItem` usa `GET /api/cart/:id`, que modifica estado.
-  Solución en tres pasos para no cortar producción: (1) `store-back` agrega `POST /api/cart/:id` sin
-  quitar el `GET`; (2) este repo pasa `addItem` a `POST`; (3) `store-back` borra el `GET`.
+- [ ] **Verificar catálogo, navbar y tema de Material en el navegador**: listado desde `/api/product`,
+  filtro por categoría (`?categoria=`, con las palabras clave de `categories.ts`), búsqueda (`?q=`), anclas
+  Contacto/Newsletter e imágenes del carrito y del resumen del checkout. El tema de Material recortado
+  (commit `1a6b0ae`) ya está en producción sin mirarlo: drawer del carrito, snackbars verde/rojo (también
+  los errores de login y registro) y tipografía. Solución: recorrerlo en GitHub Pages; lo que falle, como
+  bug. Si el tema se ve roto, revertir `1a6b0ae` mientras se corrige.
+
+### Media
+
+- [ ] **Runner de CI**: `ubuntu-latest` pasa a Ubuntu 26 desde el **2026-10-19**. Solución: revisar el
+  primer build después de esa fecha; si falla, fijar `runs-on: ubuntu-24.04` mientras se corrige.
 - [ ] **Migrar al builder `@angular/build:application`** (esbuild). Quedan 5 vulnerabilidades moderadas
   (`uuid` vía `webpack-dev-server` de `@angular-devkit/build-angular`, solo en `ng serve`; `npm audit fix
   --force` propone Angular 22) y el bundle inicial sigue en 541 kB contra el budget de 500 kB (el `main` es
   casi todo Angular). Solución: `ng update @angular/cli --name use-application-builder`, cambiar la
   devDependency a `@angular/build` y ajustar el CI: la salida pasa a `dist/store-app/browser/` (el `mv` del
   `404.html` y el `build_dir` del deploy). Build + tests, y recién ahí revisar si hace falta subir el budget.
+
+### Baja
+
+- [ ] **Agregar al carrito con `GET`**: `addItem` usa `GET /api/cart/:id`, que modifica estado.
+  Solución en tres pasos para no cortar producción: (1) `store-back` agrega `POST /api/cart/:id` sin
+  quitar el `GET`; (2) este repo pasa `addItem` a `POST`; (3) `store-back` borra el `GET`.
 - [ ] **Budget de `navbar.component.scss`**: 2,51 kB contra 2 kB (warning, no bloquea). Solución: subir el
   `anyComponentStyle` a 4 kB en `angular.json` o pasar estilos del navbar a clases de Tailwind.
