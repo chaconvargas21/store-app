@@ -1,4 +1,6 @@
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterModule, provideRouter } from '@angular/router';
 
 import { CardItemComponent } from './card-item.component';
 
@@ -8,12 +10,12 @@ describe('CardItemComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CardItemComponent ]
-    })
-    .compileComponents();
-  });
+      imports: [RouterModule],
+      declarations: [CardItemComponent],
+      providers: [provideRouter([])],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
 
-  beforeEach(() => {
     fixture = TestBed.createComponent(CardItemComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
