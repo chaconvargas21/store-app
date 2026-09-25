@@ -259,12 +259,10 @@ Estado al 2026-09-25. Cada pendiente con su solución; lo que se resuelve en `st
 
 ### Alta
 
-- [ ] **Verificar catálogo, navbar y tema de Material en el navegador**: listado desde `/api/product`,
-  filtro por categoría (`?categoria=`, con las palabras clave de `categories.ts`), búsqueda (`?q=`), anclas
-  Contacto/Newsletter e imágenes del carrito y del resumen del checkout. El tema de Material recortado
-  (commit `1a6b0ae`) ya está en producción sin mirarlo: drawer del carrito, snackbars verde/rojo (también
-  los errores de login y registro) y tipografía. Solución: recorrerlo en GitHub Pages; lo que falle, como
-  bug. Si el tema se ve roto, revertir `1a6b0ae` mientras se corrige.
+Nada pendiente. El catálogo, el navbar y el tema de Material se verificaron en producción el 2026-09-25
+(Chrome headless): las 8 categorías/colecciones con la cantidad esperada, las 20 imágenes, mega menú,
+búsqueda, anclas Contacto/Newsletter, drawer del carrito, snackbars verde/rojo, tipografía y menú mobile.
+Lo único roto era el navbar en mobile (desbordaba 21 px, y 190 px con el buscador abierto): corregido.
 
 ### Media
 
@@ -288,5 +286,15 @@ Estado al 2026-09-25. Cada pendiente con su solución; lo que se resuelve en `st
 - [ ] **Agregar al carrito con `GET`**: `addItem` usa `GET /api/cart/:id`, que modifica estado.
   Solución en tres pasos para no cortar producción: (1) `store-back` agrega `POST /api/cart/:id` sin
   quitar el `GET`; (2) este repo pasa `addItem` a `POST`; (3) `store-back` borra el `GET`.
-- [ ] **Budget de `navbar.component.scss`**: 2,51 kB contra 2 kB (warning, no bloquea). Solución: subir el
+- [ ] **Budget de `navbar.component.scss`**: 2,65 kB contra 2 kB (warning, no bloquea). Solución: subir el
   `anyComponentStyle` a 4 kB en `angular.json` o pasar estilos del navbar a clases de Tailwind.
+- [ ] **Navbar a 320 px**: desborda 8 px (desde 360 px entra, con y sin el buscador abierto). Solución: si
+  hace falta soportar ese ancho, bajar el `tracking-widest2` del logo en mobile.
+- [ ] **Mensajes del backend en inglés**: login con contraseña incorrecta muestra "Incorrect password" (y
+  "Incorrect email") en una UI en español. Solución en `store-back` (`controllers/auth.js`): traducir los `msg`.
+- [ ] **Checkout con el carrito vacío**: después de pagar (o recargando con la orden pagada) se pueden
+  recorrer los pasos con el carrito vacío; solo el botón de pagar queda bloqueado. Solución: si
+  `sidebar.items` está vacío, mostrar "Tu carrito está vacío" con un link a la tienda en lugar de los pasos.
+- [ ] **Fotos que no coinciden con el producto**: la API no tiene fotos y `shoeImage(i)` asigna una por
+  posición (ej. el Mocasín muestra una bota). Solución: mapear la foto por nombre de producto en
+  `shared/constants/shoe-images.ts`, o agregar `image` al modelo `Product` en `store-back`.

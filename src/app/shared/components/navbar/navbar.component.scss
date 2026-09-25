@@ -56,9 +56,21 @@
   transition: border-color 0.15s;
 
   &:hover { border-color: #fff; }
+
+  // Debajo de `sm` el texto está oculto: botón cuadrado de ícono.
+  @media (max-width: 639px) {
+    width: 2.5rem;
+    padding: 0;
+    margin-right: 0;
+    justify-content: center;
+  }
 }
 
+// Ocupa el espacio libre del navbar (hasta 18rem) en vez de un ancho fijo.
 .search-field {
+  flex: 1;
+  min-width: 0;
+  max-width: 18rem;
   height: 2.5rem;
   display: flex;
   align-items: center;
@@ -68,7 +80,8 @@
   border: 1px solid #fff;
 
   input {
-    width: 14rem;
+    width: 100%;
+    min-width: 0;
     padding: 0;
     border: 0;
     background: transparent;
