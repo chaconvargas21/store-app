@@ -264,7 +264,7 @@ sin `src/test.ts`: el builder encuentra los `*.spec.ts` e inicializa el `TestBed
 
 ## Pendientes
 
-Estado al 2026-09-25. Cada pendiente con su solución; lo que se resuelve en `store-back` o
+Estado al 2026-09-26. Cada pendiente con su solución; lo que se resuelve en `store-back` o
 `worker-service` vive en el `CLAUDE.md` de ese repo. Prioridad:
 
 - **Alta**: afecta a producción hoy o está en producción sin verificar.
@@ -280,8 +280,9 @@ Lo único roto era el navbar en mobile (desbordaba 21 px, y 190 px con el buscad
 
 ### Media
 
-- [ ] **Runner de CI**: `ubuntu-latest` pasa a Ubuntu 26 desde el **2026-10-19**. Solución: revisar el
-  primer build después de esa fecha; si falla, fijar `runs-on: ubuntu-24.04` mientras se corrige.
+Nada pendiente. El cambio de `ubuntu-latest` a Ubuntu 26 (2026-10-19) se probó por adelantado el
+2026-09-26 con un job temporal en `ubuntu-26.04`: tests y build pasan (commit `5bb430c`, run 36223309608).
+Si igual falla después de esa fecha, fijar `runs-on: ubuntu-24.04` mientras se corrige.
 
 ### Baja
 
