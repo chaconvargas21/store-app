@@ -148,7 +148,8 @@ un `client_secret`: ese era el modelo viejo de confirmación en el navegador y y
   pantalla de pagado, recarga → "ya fue pagada". El 2026-09-26 se verificó también que el email se
   precarga (lo devuelve `/auth/renew`) y que agregar al carrito usa `POST`.
   Usuarios de prueba: `qa+checkout202609252305@example.com` (una orden pagada del Mocasín, modo test) y
-  `qa+email202609252334@example.com` (contraseña `qa-password-1`, sin órdenes).
+  `qa+email202609252334@example.com` (contraseña `qa-password-1`; una orden de la Ojota pagada al
+  segundo intento, tras un rechazo: verificó el cobro en dos pasos de `store-back` el 2026-09-26).
 
 ### Configuración por entorno
 
