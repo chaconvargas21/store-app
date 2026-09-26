@@ -94,7 +94,7 @@ src/app/
   producto sin foto muestra `assets/generic.jpg`) y `shoe-images.spec.ts` verifica que los 20 tengan la suya.
   Los dos specs usan la lista de `products.testing.ts`: si cambian los productos en `store-back`,
   actualizar esa lista, las palabras clave y las fotos.
-- `addItem(id)` — agrega al carrito
+- `addItem(id)` — agrega al carrito (`POST /api/cart/:id`)
 - `removeItemCartShopping(id)` — quita del carrito
 - `getItemsCartShopping()` — contenido del carrito
 - `getOrder()` — orden actual (la que quedó en la sesión)
@@ -277,18 +277,9 @@ Lo único roto era el navbar en mobile (desbordaba 21 px, y 190 px con el buscad
 
 ### Media
 
-- [ ] **El checkout no precarga el email**: `CheckoutComponent` toma `receipt_email` de `AuthService.user`,
-  que lo llena `validateToken()` con la respuesta de `GET /auth/renew`, pero `revalidateToken` de
-  `store-back` solo devuelve `uid`, `name` y `token` (los saca del JWT). El usuario tiene que tipear el
-  email a mano ("Ingresá un correo válido"). Solución en `store-back`: que `revalidateToken` busque el
-  `Customer` por `uid` y devuelva `email` (el front ya lo lee); después, un test en `auth.service.spec.ts`.
 - [ ] **Runner de CI**: `ubuntu-latest` pasa a Ubuntu 26 desde el **2026-10-19**. Solución: revisar el
   primer build después de esa fecha; si falla, fijar `runs-on: ubuntu-24.04` mientras se corrige.
 
 ### Baja
 
-- [ ] **Agregar al carrito con `GET`**: `addItem` usa `GET /api/cart/:id`, que modifica estado.
-  Solución en tres pasos para no cortar producción: (1) `store-back` agrega `POST /api/cart/:id` sin
-  quitar el `GET`; (2) este repo pasa `addItem` a `POST`; (3) `store-back` borra el `GET`.
-- [ ] **Mensajes del backend en inglés**: login con contraseña incorrecta muestra "Incorrect password" (y
-  "Incorrect email") en una UI en español. Solución en `store-back` (`controllers/auth.js`): traducir los `msg`.
+Nada pendiente.
