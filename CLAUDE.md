@@ -15,6 +15,8 @@ modular organizada por features. El backend es `../store-back` (API REST Express
 - **Build de producción**: `npm run build:prod` — compila con `--base-href /store-app/`
 - **Build de desarrollo**: `npm run build` — compila sin base-href
 - **Modo watch**: `npm run watch` — recompila ante cambios
+- **Builder**: `@angular/build:application` (esbuild). `outputPath` usa `browser: ""` para que la salida
+  quede en `dist/store-app/` y no en `dist/store-app/browser/` (el CI depende de esa ruta).
 
 ### Tests
 - **Correr todos los tests**: `npm test` (watch, abre Chrome) o `npm run test:ci` (una corrida, headless; es lo que usa el CI)
@@ -219,7 +221,7 @@ en la sesión (cookie de `express-session`).
 
 ## Tests
 
-Todos los componentes tienen su `.spec.ts`. Los tests usan Karma + Jasmine (`@angular-devkit/build-angular:karma`,
+Todos los componentes tienen su `.spec.ts`. Los tests usan Karma + Jasmine (`@angular/build:karma`,
 sin `src/test.ts`: el builder encuentra los `*.spec.ts` e inicializa el `TestBed`; `zone.js/testing` va en `polyfills`).
 
 - `npm test` corre en modo watch con Chrome; `npm run test:ci` hace una sola corrida con `ChromeHeadlessCI`
@@ -271,15 +273,8 @@ Lo único roto era el navbar en mobile (desbordaba 21 px, y 190 px con el buscad
   `store-back` solo devuelve `uid`, `name` y `token` (los saca del JWT). El usuario tiene que tipear el
   email a mano ("Ingresá un correo válido"). Solución en `store-back`: que `revalidateToken` busque el
   `Customer` por `uid` y devuelva `email` (el front ya lo lee); después, un test en `auth.service.spec.ts`.
-
 - [ ] **Runner de CI**: `ubuntu-latest` pasa a Ubuntu 26 desde el **2026-10-19**. Solución: revisar el
   primer build después de esa fecha; si falla, fijar `runs-on: ubuntu-24.04` mientras se corrige.
-- [ ] **Migrar al builder `@angular/build:application`** (esbuild). Quedan 5 vulnerabilidades moderadas
-  (`uuid` vía `webpack-dev-server` de `@angular-devkit/build-angular`, solo en `ng serve`; `npm audit fix
-  --force` propone Angular 22) y el bundle inicial sigue en 541 kB contra el budget de 500 kB (el `main` es
-  casi todo Angular). Solución: `ng update @angular/cli --name use-application-builder`, cambiar la
-  devDependency a `@angular/build` y ajustar el CI: la salida pasa a `dist/store-app/browser/` (el `mv` del
-  `404.html` y el `build_dir` del deploy). Build + tests, y recién ahí revisar si hace falta subir el budget.
 
 ### Baja
 
