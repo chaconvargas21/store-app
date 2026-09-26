@@ -145,8 +145,10 @@ un `client_secret`: ese era el modelo viejo de confirmación en el navegador y y
   `4000 0025 0000 3155` (3DS → falla por diseño).
 - Estado: verificado en producción el 2026-09-25 (GitHub Pages + Cloud Run, Chrome headless con
   Puppeteer): `AuthGuard`, 402 → snackbar rojo y reintento, 401 → sesión expirada, 200 → snackbar verde y
-  pantalla de pagado, recarga → "ya fue pagada". Único fallo: el email no se precarga (ver Pendientes).
-  Usuario de prueba: `qa+checkout202609252305@example.com` (una orden pagada del Mocasín, modo test).
+  pantalla de pagado, recarga → "ya fue pagada". El 2026-09-26 se verificó también que el email se
+  precarga (lo devuelve `/auth/renew`) y que agregar al carrito usa `POST`.
+  Usuarios de prueba: `qa+checkout202609252305@example.com` (una orden pagada del Mocasín, modo test) y
+  `qa+email202609252334@example.com` (contraseña `qa-password-1`, sin órdenes).
 
 ### Configuración por entorno
 
