@@ -20,6 +20,16 @@
         </section>
 
         <ng-template #steps>
+          <section *ngIf="cartEmpty" class="step">
+            <div class="step-body pt-0 text-center py-10">
+              <h1 class="text-2xl font-medium text-ink">Tu carrito está vacío</h1>
+              <p class="mt-2 text-sm text-gray-600">Agregá productos para continuar con la compra.</p>
+              <a routerLink="/store/collections/shop" class="btn btn-primary mt-8">Ir a la tienda</a>
+            </div>
+          </section>
+
+          <!-- Se ocultan con una clase y no con *ngIf: los campos de Stripe se montan una sola vez. -->
+          <div class="flex flex-col gap-4" [class.hidden]="cartEmpty">
           <!-- 1. Mis datos -->
           <section class="step">
             <header class="step-head">
@@ -175,6 +185,7 @@
               </p>
             </form>
           </section>
+          </div>
         </ng-template>
       </div>
 

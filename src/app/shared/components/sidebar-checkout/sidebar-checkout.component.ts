@@ -19,6 +19,8 @@ export class SidebarCheckoutComponent implements OnInit {
   @Input() editable = true;
 
   items: ItemCart[] = [];
+  // true después de la primera respuesta: antes, `items` vacío no significa carrito vacío.
+  loaded = false;
   totalPrice = 0;
   totalQuantity = 0;
   shoeImage = shoeImage;
@@ -32,6 +34,7 @@ export class SidebarCheckoutComponent implements OnInit {
   getItemsShoppingCart() {
     this.storeService.getItemsCartShopping().subscribe((resp) => {
       this.items = resp.items;
+      this.loaded = true;
       this.totalQuantity = resp.items.reduce((sum, i) => sum + i.quantity, 0);
       // Igual que ShoppingCartComponent: el totalPrice de store-back se infla
       // con cantidad > 1, así que se suma el precio de cada línea.

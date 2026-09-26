@@ -137,6 +137,30 @@ describe('CheckoutComponent', () => {
     expect(lastMessage()).toContain('sesión expiró');
   });
 
+  it('carrito vacío: muestra el aviso en lugar de los pasos', () => {
+    // El sidebar no se declara en este spec (y la query de @ViewChild pisaría un stub).
+    spyOnProperty(component, 'cartEmpty').and.returnValue(true);
+    // TestBed es zoneless: sin markForCheck, detectChanges no vuelve a revisar la vista.
+    fixture.componentRef.changeDetectorRef.markForCheck();
+    fixture.detectChanges();
+
+    const page: HTMLElement = fixture.nativeElement;
+    expect(page.textContent).toContain('Tu carrito está vacío');
+    // Los pasos quedan en el DOM (ocultos) para no desmontar los campos de Stripe.
+    expect(page.querySelector('#cardNumber')).not.toBeNull();
+  });
+
+  it('el carrito está vacío solo cuando ya cargó y no tiene productos', () => {
+    component.sidebar = { loaded: false, items: [] } as any;
+    expect(component.cartEmpty).toBeFalse();
+
+    component.sidebar = { loaded: true, items: [{}] } as any;
+    expect(component.cartEmpty).toBeFalse();
+
+    component.sidebar = { loaded: true, items: [] } as any;
+    expect(component.cartEmpty).toBeTrue();
+  });
+
   it('bloquea el pago si la orden de la sesión ya fue cobrada', async () => {
     store.getOrder.and.returnValue(of({ order: { stripeId: 'pi_123' } }));
     store.confirmOrder.and.returnValue(of({ status: 'succeeded' } as any));

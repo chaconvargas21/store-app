@@ -59,6 +59,11 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     return Object.values(this.cardState).every(Boolean);
   }
 
+  // Sin productos no hay nada que pagar: se muestra un aviso en lugar de los pasos.
+  get cartEmpty(): boolean {
+    return !!this.sidebar?.loaded && !this.sidebar.items.length;
+  }
+
   get fullName(): string {
     const { firstName, lastName } = this.deliveryForm.value;
     return `${firstName.trim()} ${lastName.trim()}`;
