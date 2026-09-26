@@ -32,9 +32,7 @@ modular organizada por features. El backend es `../store-back` (API REST Express
 
 ### Organización de módulos (por feature)
 
-La app se generó con Angular CLI 13 y se actualizó in-place a Angular 21 (ver `package.json`). Angular 21
-genera componentes standalone por defecto, pero este código mantiene a propósito la arquitectura previa
-basada en NgModules: cada componente declara `standalone: false` explícitamente y está en las
+La app usa NgModules, no componentes standalone (el default de Angular 21): cada componente declara `standalone: false` explícitamente y está en las
 `declarations` de un módulo de feature. No pasar un componente a standalone sin sacarlo también de las
 `declarations` de su módulo y actualizar todos los módulos que lo importan.
 
@@ -42,7 +40,7 @@ La app usa **módulos de feature con lazy loading** para organizar el código po
 
 ```
 src/app/
-├── app.module.ts              // Módulo raíz: HTTP client, animaciones
+├── app.module.ts              // Módulo raíz: HTTP client, animaciones, zone.js, LoadingInterceptor
 ├── app-routing.module.ts      // Routing raíz con lazy loading
 │
 ├── store/                     // Feature: tienda y catálogo (lazy-loaded)
@@ -53,7 +51,7 @@ src/app/
 │   ├── home/                  // Landing
 │   ├── collections/           // Navegación por categoría
 │   │   └── shop/shop.component.ts
-│   └── pages/                 // Páginas de detalle
+│   └── pages/                 // Páginas de detalle (pages.module + pages-routing.module)
 │       ├── collection/        // Productos de una categoría
 │       ├── item/              // Detalle de un producto
 │       └── checkout/          // Pago y confirmación de la orden
@@ -69,13 +67,18 @@ src/app/
 │
 └── shared/                    // Componentes y servicios reutilizables
     ├── components/
-    │   ├── navbar/           // Navegación principal
+    │   ├── navbar/           // Navegación principal, mega menú y buscador
     │   ├── sidebar/          // Menú mobile
-    │   ├── shopping-cart/    // Preview del carrito
-    │   ├── sidebar-checkout/ // Resumen del checkout
+    │   ├── shopping-cart/    // Drawer del carrito
+    │   ├── sidebar-checkout/ // Resumen del pedido en el checkout
     │   ├── card-item/        // Tarjeta de producto (reutilizable)
     │   ├── card-list/        // Grilla de productos
+    │   ├── carousel/         // Carrusel de la home
+    │   ├── loader/           // Loader de página completa
     │   └── footer/
+    ├── constants/            // Categorías/colecciones y fotos por producto
+    ├── interceptors/         // LoadingInterceptor (SKIP_LOADING para omitir el loader)
+    ├── services/             // LoadingService
     ├── pages/
     │   └── error-page/       // Página 404
     ├── validators/           // Validadores de formularios
@@ -113,10 +116,10 @@ además mandan el JWT en el header `x-token` (helper privado `authHeaders()`, qu
 
 ## Checkout y pago
 
-Contrato con el backend (`../store-back`, `PATCH /api/order` → `updateOrder`). El backend crea **y
-confirma** el PaymentIntent en la misma llamada (`confirm: true`), así que Stripe.js solo se usa para
-tokenizar la tarjeta (`STRIPE.createToken`). **No** llamar `handleCardPayment`/`confirmCardPayment` con
-un `client_secret`: ese era el modelo viejo de confirmación en el navegador y ya no aplica.
+Contrato con el backend (`../store-back`, `PATCH /api/order` → `updateOrder`). El cobro se hace entero
+en el servidor, dentro de esa request (crea el PaymentIntent, guarda su id en la orden y lo confirma), así
+que Stripe.js solo se usa para tokenizar la tarjeta (`STRIPE.createToken`). **No** llamar
+`handleCardPayment`/`confirmCardPayment` con un `client_secret`: el navegador no confirma pagos.
 
 - Pantalla: tres pasos en acordeón (Mis datos → Dirección de entrega → Pago). "Continuar al pago"
   llama a `postOrder`; los campos de Stripe se montan una vez en `ngAfterViewInit` (el paso de pago
@@ -136,20 +139,16 @@ un `client_secret`: ese era el modelo viejo de confirmación en el navegador y y
   - **409** `{ error }` → la orden ya fue pagada o hay otro intento en curso: muestra el mensaje del
     backend y **no** re-habilita el formulario.
   - **500** → mensaje genérico y re-habilita `paymentForm`. Reintentar es seguro: el backend escribe la
-    orden antes de cobrar, reembolsa si no pudo registrar el pago y responde 409 si ya estaba pagada.
+    orden y el id del PaymentIntent antes de cobrar, consulta a Stripe antes de volver a cobrar y responde
+    409 si ya estaba pagada.
   - **401** → sesión expirada; cualquier otro → mensaje de error genérico.
 - 3D Secure **no está soportado**: el backend registra esos pagos como `failed` (402). Aceptable en modo
   test de Stripe; para cobros reales haría falta confirmación en el navegador + webhook
   `payment_intent.succeeded` en el backend.
 - Tarjetas de prueba: `4242 4242 4242 4242` (aprobada), `4000 0000 0000 0002` (rechazada),
   `4000 0025 0000 3155` (3DS → falla por diseño).
-- Estado: verificado en producción el 2026-09-25 (GitHub Pages + Cloud Run, Chrome headless con
-  Puppeteer): `AuthGuard`, 402 → snackbar rojo y reintento, 401 → sesión expirada, 200 → snackbar verde y
-  pantalla de pagado, recarga → "ya fue pagada". El 2026-09-26 se verificó también que el email se
-  precarga (lo devuelve `/auth/renew`) y que agregar al carrito usa `POST`.
-  Usuarios de prueba: `qa+checkout202609252305@example.com` (una orden pagada del Mocasín, modo test) y
-  `qa+email202609252334@example.com` (una orden de la Ojota pagada al
-  segundo intento, tras un rechazo: verificó el cobro en dos pasos de `store-back` el 2026-09-26).
+- Usuarios de prueba (modo test): `qa+checkout202609252305@example.com` y
+  `qa+email202609252334@example.com`.
 
 ### Configuración por entorno
 
@@ -173,7 +172,7 @@ Stripe; tiene que ser de la misma cuenta que la `STRIPE_SK` del backend).
 
 - **RxJS 7.8**: `Observable`, `map`, `catchError`, `of`
 - **Stripe.js**: tokenización de tarjetas en el checkout
-- **MatSnackBar** (Angular Material): mensajes de feedback al usuario (también los errores de `login`/`sign-in`); el checkout usa el helper `notify(message, type)` con las clases globales `snackbar-success`/`snackbar-danger` (`src/sass/styles.scss`). Reemplazó a `ngx-toast-notifications`.
+- **MatSnackBar** (Angular Material): mensajes de feedback al usuario (también los errores de `login`/`sign-in`); el checkout usa el helper `notify(message, type)` con las clases globales `snackbar-success`/`snackbar-danger` (`src/sass/styles.scss`).
 - **Angular Material y CDK**: componentes de UI y accesibilidad
 
 ## Tipado
@@ -198,7 +197,7 @@ La mayoría de los métodos de servicio usan este patrón:
 consumen reciben un `string` en vez de una excepción.
 
 **Excepción:** `postOrder` y `sendPayment` **no** tienen `catchError`: dejan propagar el
-`HttpErrorResponse` para que `CheckoutComponent` decida según el status HTTP (401 / 402). No volver a
+`HttpErrorResponse` para que `CheckoutComponent` decida según el status HTTP (401 / 402 / 409). No
 agregarles el patrón que traga el error.
 
 ### Lazy loading
@@ -220,8 +219,8 @@ en la sesión (cookie de `express-session`).
 - **Pestaña Network**: si fallan las llamadas al API, verificar que `baseUrl` sea el correcto.
 - **Diferencias entre entornos**: si `ng serve` funciona pero `npm run build:prod` no, revisar
   `environment.prod.ts`.
-- **Guards**: `AuthGuard` está comentado a propósito para todo el módulo `store` (`app-routing.module.ts`)
-  y aplicado solo a `store/checkout` (`pages-routing.module.ts`).
+- **Guards**: `AuthGuard` se aplica solo a `store/checkout` (`pages-routing.module.ts`); en
+  `app-routing.module.ts` está comentado a propósito para que el resto de `store` sea anónimo.
 - **401 en el checkout**: verificar que exista `localStorage.token` y que la request lleve `x-token`.
 - **CORS**: el backend solo acepta los orígenes `http://localhost:4200` y
   `https://chaconvargas21.github.io`.
@@ -256,34 +255,16 @@ sin `src/test.ts`: el builder encuentra los `*.spec.ts` e inicializa el `TestBed
   `index.html` a `404.html` (routing de la SPA) → deploy a GitHub Pages
   (`https://chaconvargas21.github.io/store-app/`, responde HTTP 404 a propósito por ese renombre).
 - En los `pull_request` a `main` corre solo hasta el build: el renombre y el deploy tienen
-  `if: github.event_name != 'pull_request'` (antes un PR publicaba su versión en Pages sin mergearse).
-- Usa **Node 22** (Angular 21 exige `^20.19 || ^22.12 || >=24`; con Node 18 la CLI sale con exit code 3).
+  `if: github.event_name != 'pull_request'`, así un PR no se publica sin mergearse.
+- Usa **Node 22** (Angular 21 exige `^20.19 || ^22.12 || >=24`) sobre `ubuntu-latest`; si un cambio de
+  imagen del runner rompe el build, fijar `runs-on: ubuntu-24.04` mientras se corrige.
 - Si el build pasa local pero falla en CI, reproducir con instalación limpia (`rm -rf node_modules && npm ci`):
-  un `node_modules` viejo puede esconder librerías View Engine que solo compilaban gracias a `ngcc`
-  (así pasó con `ngx-toast-notifications`, commit `5d32f39`).
+  un `node_modules` viejo puede esconder dependencias que ya no compilan.
 
 ## Pendientes
 
-Estado al 2026-09-26. Cada pendiente con su solución; lo que se resuelve en `store-back` o
-`worker-service` vive en el `CLAUDE.md` de ese repo. Prioridad:
-
-- **Alta**: afecta a producción hoy o está en producción sin verificar.
-- **Media**: riesgo acotado o con fecha; conviene resolverlo en las próximas semanas.
-- **Baja**: mejoras sin impacto visible para el usuario.
-
-### Alta
-
-Nada pendiente. El catálogo, el navbar y el tema de Material se verificaron en producción el 2026-09-25
-(Chrome headless): las 8 categorías/colecciones con la cantidad esperada, las 20 imágenes, mega menú,
-búsqueda, anclas Contacto/Newsletter, drawer del carrito, snackbars verde/rojo, tipografía y menú mobile.
-Lo único roto era el navbar en mobile (desbordaba 21 px, y 190 px con el buscador abierto): corregido.
-
-### Media
-
-Nada pendiente. El cambio de `ubuntu-latest` a Ubuntu 26 (2026-10-19) se probó por adelantado el
-2026-09-26 con un job temporal en `ubuntu-26.04`: tests y build pasan (commit `5bb430c`, run 36223309608).
-Si igual falla después de esa fecha, fijar `runs-on: ubuntu-24.04` mientras se corrige.
-
-### Baja
+Deuda técnica de este repo, cada una con su solución y prioridad (**alta**: afecta a producción;
+**media**: riesgo acotado o con fecha; **baja**: sin impacto visible). La que se resuelve en `store-back` o
+`worker-service` vive en el `CLAUDE.md` de ese repo.
 
 Nada pendiente.
