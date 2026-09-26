@@ -1,0 +1,1 @@
+import{i as m,j as i}from"./chunk-FXATUEWX.js";import"./chunk-CCWUSZJK.js";import"./chunk-OIEIGDGK.js";import{H as t,ka as r,kb as e}from"./chunk-PSBQOBLX.js";var S=(()=>{class o{static \u0275fac=function(n){return new(n||o)};static \u0275mod=r({type:o});static \u0275inj=t({imports:[e,i,m]})}return o})();export{S as StoreModule};
