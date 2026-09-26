@@ -89,7 +89,11 @@ src/app/
 - `getItemById(id)` — trae un producto (`GET /api/product/:id` → `product`). `Item` replica el modelo
   `Product` del backend; las categorías de calzado se filtran en el cliente (`shared/constants/categories.ts`)
   con palabras clave ajustadas a los 20 productos reales; `categories.spec.ts` verifica que ninguna categoría
-  quede vacía. Si cambian los productos en `store-back`, actualizar las dos listas.
+  quede vacía. La API tampoco tiene fotos: `shoeImage(item)` (`shared/constants/shoe-images.ts`) elige la
+  foto por nombre de producto (fotos CC0 en `assets/images/productos/`, créditos en su `CREDITOS.md`; un
+  producto sin foto muestra `assets/generic.jpg`) y `shoe-images.spec.ts` verifica que los 20 tengan la suya.
+  Los dos specs usan la lista de `products.testing.ts`: si cambian los productos en `store-back`,
+  actualizar esa lista, las palabras clave y las fotos.
 - `addItem(id)` — agrega al carrito
 - `removeItemCartShopping(id)` — quita del carrito
 - `getItemsCartShopping()` — contenido del carrito
@@ -116,7 +120,9 @@ un `client_secret`: ese era el modelo viejo de confirmación en el navegador y y
 
 - Pantalla: tres pasos en acordeón (Mis datos → Dirección de entrega → Pago). "Continuar al pago"
   llama a `postOrder`; los campos de Stripe se montan una vez en `ngAfterViewInit` (el paso de pago
-  usa `[hidden]`, no `*ngIf`). `shipping.name` es el destinatario (va al `shipping` del PaymentIntent),
+  usa `[hidden]`, no `*ngIf`). Con el carrito vacío (`cartEmpty`, que lee `SidebarCheckoutComponent.items`
+  una vez cargado) se muestra "Tu carrito está vacío" y los pasos se ocultan con una clase, por lo mismo.
+  `shipping.name` es el destinatario (va al `shipping` del PaymentIntent),
   `address.country` es `PE` y `city` = "Distrito, Provincia" (Address no tiene distrito).
 - Solo `store/checkout` está protegida (`canActivate: [AuthGuard]` en `pages-routing.module.ts`); el
   catálogo y el carrito siguen siendo anónimos, igual que en el backend ("login solo para pagar"). Sin
@@ -231,7 +237,10 @@ sin `src/test.ts`: el builder encuentra los `*.spec.ts` e inicializa el `TestBed
   `provideRouter([])`, `ReactiveFormsModule`) y `CUSTOM_ELEMENTS_SCHEMA` para los `app-*` hijos. Los que llaman
   al API usan un mock de `StoreService`/`AuthService` o `provideHttpClient()` + `provideHttpClientTesting()`.
 - `checkout.component.spec.ts` stubbea `window.Stripe` (y lo restaura en `afterEach`) y cubre las ramas de
-  `initPay` (200 / 402 / 409 / 401) y la orden ya pagada de `loadDetail`.
+  `initPay` (200 / 402 / 409 / 401), la orden ya pagada de `loadDetail` y el carrito vacío.
+- El `TestBed` de Angular 21 es zoneless (la app no: `provideZoneChangeDetection()` en `AppModule`):
+  `fixture.detectChanges()` solo revisa las vistas marcadas, así que después de cambiar estado a mano hay que
+  llamar `fixture.componentRef.changeDetectorRef.markForCheck()` o salta `NG0100`.
 
 ## Git y commits
 
@@ -281,15 +290,5 @@ Lo único roto era el navbar en mobile (desbordaba 21 px, y 190 px con el buscad
 - [ ] **Agregar al carrito con `GET`**: `addItem` usa `GET /api/cart/:id`, que modifica estado.
   Solución en tres pasos para no cortar producción: (1) `store-back` agrega `POST /api/cart/:id` sin
   quitar el `GET`; (2) este repo pasa `addItem` a `POST`; (3) `store-back` borra el `GET`.
-- [ ] **Budget de `navbar.component.scss`**: 2,65 kB contra 2 kB (warning, no bloquea). Solución: subir el
-  `anyComponentStyle` a 4 kB en `angular.json` o pasar estilos del navbar a clases de Tailwind.
-- [ ] **Navbar a 320 px**: desborda 8 px (desde 360 px entra, con y sin el buscador abierto). Solución: si
-  hace falta soportar ese ancho, bajar el `tracking-widest2` del logo en mobile.
 - [ ] **Mensajes del backend en inglés**: login con contraseña incorrecta muestra "Incorrect password" (y
   "Incorrect email") en una UI en español. Solución en `store-back` (`controllers/auth.js`): traducir los `msg`.
-- [ ] **Checkout con el carrito vacío**: después de pagar (o recargando con la orden pagada) se pueden
-  recorrer los pasos con el carrito vacío; solo el botón de pagar queda bloqueado. Solución: si
-  `sidebar.items` está vacío, mostrar "Tu carrito está vacío" con un link a la tienda en lugar de los pasos.
-- [ ] **Fotos que no coinciden con el producto**: la API no tiene fotos y `shoeImage(i)` asigna una por
-  posición (ej. el Mocasín muestra una bota). Solución: mapear la foto por nombre de producto en
-  `shared/constants/shoe-images.ts`, o agregar `image` al modelo `Product` en `store-back`.

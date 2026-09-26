@@ -7,8 +7,8 @@
   </div>
 
   <ul class="mt-4">
-    <li *ngFor="let itemCart of items; let i = index" class="summary-item">
-      <img class="summary-thumb" [src]="shoeImage(i)" [alt]="itemCart.item.product" />
+    <li *ngFor="let itemCart of items" class="summary-item">
+      <img class="summary-thumb" [src]="shoeImage(itemCart.item)" [alt]="itemCart.item.product" />
       <div class="min-w-0 flex-1">
         <p class="text-sm font-medium text-ink">{{ itemCart.item.product }}</p>
         <dl class="mt-1 text-xs text-gray-500 space-y-1">

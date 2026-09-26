@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, switchMap } from 'rxjs/operators';
 import { Item } from '../../interfaces/item.interface';
 import { StoreService } from '../../services/store.service';
-import { SHOE_IMAGES } from '../../../shared/constants/shoe-images';
+import { shoeImage } from '../../../shared/constants/shoe-images';
 
 @Component({
   selector: 'app-item',
@@ -15,9 +15,10 @@ import { SHOE_IMAGES } from '../../../shared/constants/shoe-images';
 export class ItemComponent {
   item?: Item;
   adding = false;
-  // La API no guarda fotos: card-item manda la suya en el state de la navegación
-  // para que el detalle muestre la misma. Si se entra por URL, la primera.
-  image: string = history.state?.image ?? SHOE_IMAGES[0];
+
+  get image(): string {
+    return shoeImage(this.item);
+  }
 
   // `quantity` es el stock del producto (modelo Product de store-back).
   get soldOut(): boolean {

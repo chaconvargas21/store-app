@@ -1,6 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Item } from '../../interfaces/item.interface';
-import { SHOE_IMAGES, shoeImage } from '../../constants/shoe-images';
+import { shoeImage } from '../../constants/shoe-images';
 
 @Component({
   selector: 'app-card-item',
@@ -8,16 +8,10 @@ import { SHOE_IMAGES, shoeImage } from '../../constants/shoe-images';
   templateUrl: './card-item.component.html',
   styleUrls: ['./card-item.component.scss']
 })
-export class CardItemComponent implements OnInit {
+export class CardItemComponent {
   @Input() item: Item | undefined;
-  @Input() index: number = 0;
 
-  imageUrl: string = SHOE_IMAGES[0];
-
-  constructor() { }
-
-  ngOnInit(): void {
-    this.imageUrl = shoeImage(this.index);
+  get imageUrl(): string {
+    return shoeImage(this.item);
   }
-
 }
