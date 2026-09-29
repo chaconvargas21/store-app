@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, switchMap } from 'rxjs/operators';
 import { Item } from '../../../shared/interfaces/item.interface';
 import { StoreService } from '../../services/store.service';
 import { shoeImage } from '../../../shared/constants/shoe-images';
+import { NotificationService } from '../../../shared/services/notification.service';
 
 @Component({
   selector: 'app-item',
@@ -29,7 +29,7 @@ export class ItemComponent {
   constructor(
     private activatedRoute: ActivatedRoute,
     private storeService: StoreService,
-    private snackBar: MatSnackBar
+    private notification: NotificationService
   ) {
     // switchMap cancela la request anterior si se navega a otro producto sin
     // salir del componente; takeUntilDestroyed corta la suscripción a `params`
@@ -52,14 +52,11 @@ export class ItemComponent {
       .addItem(this.item._id)
       .pipe(finalize(() => (this.adding = false)))
       .subscribe((added) => {
-        this.snackBar.open(
-          added ? 'Agregado al carrito' : 'No se pudo agregar al carrito',
-          'Cerrar',
-          {
-            duration: 3000,
-            panelClass: added ? 'snackbar-success' : 'snackbar-danger',
-          }
-        );
+        if (added) {
+          this.notification.success('Agregado al carrito', 3000);
+        } else {
+          this.notification.danger('No se pudo agregar al carrito', 3000);
+        }
       });
   }
 }

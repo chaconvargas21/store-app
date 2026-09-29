@@ -1,10 +1,10 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { ValidatorService } from 'src/app/shared/validators/validator.service';
 import { AuthService } from 'src/app/auth/services/auth.service';
+import { NotificationService } from 'src/app/shared/services/notification.service';
 import { SidebarCheckoutComponent } from 'src/app/shared/components/sidebar-checkout/sidebar-checkout.component';
 import { environment } from '../../../../environments/environment';
 import { StoreService } from '../../services/store.service';
@@ -88,7 +88,7 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     private fb: FormBuilder,
     private store: StoreService,
     private auth: AuthService,
-    private snackBar: MatSnackBar
+    private notification: NotificationService
   ) {
     // window.Stripe existe si cargó el <script> de index.html.
     this.STRIPE = window.Stripe!(environment.stripe_pk);
@@ -188,7 +188,7 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
       this.prefillCardHolder();
     } catch (e) {
       const expired = e instanceof HttpErrorResponse && e.status === 401;
-      this.notify(expired ? 'Iniciá sesión para pagar' : 'No se pudo guardar la dirección', 'danger');
+      this.notification.danger(expired ? 'Iniciá sesión para pagar' : 'No se pudo guardar la dirección');
     } finally {
       this.savingDelivery = false;
     }
@@ -244,7 +244,7 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
         const { status } = (await this.store.confirmOrder().toPromise())!;
         if (status === 'succeeded') {
           this.paymentBlocked = true;
-          this.notify('La orden de esta sesión ya fue pagada', 'danger');
+          this.notification.danger('La orden de esta sesión ya fue pagada');
         }
       }
     } catch {
@@ -268,7 +268,7 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     });
     if (error || !token) {
       this.paying = false;
-      this.notify(error?.message ?? 'No se pudo validar la tarjeta', 'danger');
+      this.notification.danger(error?.message ?? 'No se pudo validar la tarjeta');
       return;
     }
 
@@ -277,38 +277,29 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
       if (data.status === 'succeeded') {
         this.paid = true;
         this.sidebar?.getItemsShoppingCart();
-        this.notify('Pago realizado', 'success');
+        this.notification.success('Pago realizado');
       }
     } catch (e) {
       const status = e instanceof HttpErrorResponse ? e.status : 0;
       if (status === 402) {
         // El carrito se conserva en el backend: se puede reintentar con otra tarjeta.
-        this.notify('Tarjeta rechazada. Probá con otra tarjeta', 'danger');
+        this.notification.danger('Tarjeta rechazada. Probá con otra tarjeta');
       } else if (status === 409) {
         // La orden ya fue pagada o hay otro intento en curso: no reintentar.
         const message = e instanceof HttpErrorResponse ? e.error?.error : null;
         this.paymentBlocked = true;
-        this.notify(message || 'La orden ya está en proceso de pago', 'danger');
+        this.notification.danger(message || 'La orden ya está en proceso de pago');
       } else {
         // 500: reintentar es seguro (el backend escribe la orden antes de
         // cobrar, reembolsa si no pudo registrar el pago y responde 409 si ya
         // se pagó).
-        this.notify(
-          status === 401 ? 'Tu sesión expiró, volvé a iniciar sesión' : 'Algo ocurrió mientras procesábamos el pago',
-          'danger'
+        this.notification.danger(
+          status === 401 ? 'Tu sesión expiró, volvé a iniciar sesión' : 'Algo ocurrió mientras procesábamos el pago'
         );
       }
     } finally {
       this.paying = false;
     }
-  }
-
-  // Snackbar de feedback; `type` elige el color (clases globales de styles.scss).
-  private notify(message: string, type?: 'success' | 'danger') {
-    this.snackBar.open(message, 'Cerrar', {
-      duration: 5000,
-      panelClass: type ? `snackbar-${type}` : undefined,
-    });
   }
 }
 

@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { ValidatorService } from 'src/app/shared/validators/validator.service';
+import { NotificationService } from 'src/app/shared/services/notification.service';
 import { AuthService } from '../../services/auth.service';
 
 // Reglas de la contraseña: se muestran como checklist y también validan el form.
@@ -25,7 +25,7 @@ export class SignInComponent implements OnInit {
     private validator: ValidatorService,
     private router: Router,
     private auth: AuthService,
-    private snackBar: MatSnackBar
+    private notification: NotificationService
   ) {}
 
   signInForm!: FormGroup;
@@ -45,6 +45,7 @@ export class SignInComponent implements OnInit {
     return this.signInForm.get('lastName');
   }
 
+  // Estado de cada regla para el checklist bajo el campo de contraseña.
   get passwordRules() {
     const value: string = this.password?.value ?? '';
     return PASSWORD_RULES.map((r) => ({ label: r.label, met: r.test(value) }));
@@ -77,11 +78,13 @@ export class SignInComponent implements OnInit {
     });
   }
 
+  // Para el template: marca el campo en rojo solo después de que el usuario lo tocó.
   invalid(field: string): boolean {
     const control = this.signInForm.get(field);
     return !!control && control.invalid && control.touched;
   }
 
+  // Crea la cuenta; si sale bien, AuthService ya guardó el token y vuelve a la tienda.
   signIn() {
     if (this.signInForm.invalid) {
       this.signInForm.markAllAsTouched();
@@ -97,10 +100,8 @@ export class SignInComponent implements OnInit {
         if (ok === true) {
           this.router.navigateByUrl('/store');
         } else {
-          this.snackBar.open(ok, 'Cerrar', {
-            duration: 5000,
-            panelClass: 'snackbar-danger',
-          });
+          // `ok` es el mensaje de error del backend (ver AuthService.errorMessage).
+          this.notification.danger(ok);
         }
       });
   }

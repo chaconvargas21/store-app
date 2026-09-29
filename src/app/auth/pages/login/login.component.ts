@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { ValidatorService } from 'src/app/shared/validators/validator.service';
+import { NotificationService } from 'src/app/shared/services/notification.service';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -18,7 +18,7 @@ export class LoginComponent implements OnInit {
     private validator: ValidatorService,
     private auth: AuthService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private notification: NotificationService
   ) {}
 
   loginForm!: FormGroup;
@@ -42,11 +42,13 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  // Para el template: marca el campo en rojo solo después de que el usuario lo tocó.
   invalid(field: string): boolean {
     const control = this.loginForm.get(field);
     return !!control && control.invalid && control.touched;
   }
 
+  // Si el login sale bien, AuthService ya guardó el token: vuelve a la tienda.
   login() {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
@@ -60,10 +62,8 @@ export class LoginComponent implements OnInit {
         if (ok === true) {
           this.router.navigateByUrl('/store');
         } else {
-          this.snackBar.open(ok, 'Cerrar', {
-            duration: 5000,
-            panelClass: 'snackbar-danger',
-          });
+          // `ok` es el mensaje de error del backend (ver AuthService.errorMessage).
+          this.notification.danger(ok);
         }
       });
   }
