@@ -2,7 +2,7 @@ import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { SKIP_LOADING } from 'src/app/shared/interceptors/loading.interceptor';
-import { AddItemResponse, GetItemByIdResponse, GetItemsCartShoppingResponse, GetItemsResponse, Item, RemoveItemResponse } from '../interfaces/item.interface';
+import { AddItemResponse, GetItemByIdResponse, GetItemsCartShoppingResponse, GetItemsResponse, Item, RemoveItemResponse } from 'src/app/shared/interfaces/item.interface';
 import { catchError, map, Observable, of } from 'rxjs';
 
 @Injectable({
