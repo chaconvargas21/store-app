@@ -30,10 +30,12 @@ export const SHOE_COLLECTIONS = [
 
 const ALL_FILTERS: ShoeCategory[] = [...SHOE_CATEGORIES, ...SHOE_COLLECTIONS];
 
+// Busca por slug en categorías y colecciones (el query param `categoria` puede ser cualquiera).
 export function findCategory(slug: string | null): ShoeCategory | undefined {
   return ALL_FILTERS.find((c) => c.slug === slug);
 }
 
+// Sin tildes y en minúsculas: "Mocasín" y "mocasin" coinciden.
 function normalize(text: string): string {
   return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 }
@@ -42,6 +44,7 @@ function searchableText(item: Item): string {
   return normalize(`${item.product} ${item.manufacturer} ${item.material}`);
 }
 
+// Un slug desconocido no filtra nada (muestra todo el catálogo).
 export function matchesCategory(item: Item, slug: string): boolean {
   const category = findCategory(slug);
   if (!category) return true;
@@ -49,6 +52,7 @@ export function matchesCategory(item: Item, slug: string): boolean {
   return category.keywords.some((k) => text.includes(normalize(k)));
 }
 
+// Búsqueda del navbar: el producto tiene que contener todas las palabras, en cualquier orden.
 export function matchesSearch(item: Item, query: string): boolean {
   const text = searchableText(item);
   return normalize(query).split(/\s+/).filter(Boolean).every((w) => text.includes(w));

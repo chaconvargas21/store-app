@@ -29,10 +29,13 @@ const PRODUCT_IMAGES: Record<string, string> = {
 // Producto sin foto asignada: imagen genérica en vez de la de otro calzado.
 export const FALLBACK_IMAGE = './assets/generic.jpg';
 
+// Quita tildes (rango de diacríticos combinables U+0300–U+036F tras NFD) para
+// que "Mocasín" encuentre la clave 'mocasin'.
 function normalize(text: string): string {
   return text.normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toLowerCase();
 }
 
+// Pick<Item, 'product'>: solo necesita el nombre del producto.
 export function shoeImage(item: Pick<Item, 'product'> | undefined): string {
   const file = item && PRODUCT_IMAGES[normalize(item.product)];
   return file ? `./assets/images/${file}` : FALLBACK_IMAGE;

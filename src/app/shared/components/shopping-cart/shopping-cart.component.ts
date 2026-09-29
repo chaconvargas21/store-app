@@ -50,6 +50,7 @@ export class ShoppingCartComponent implements OnInit {
     });
   }
 
+  // POST /api/cart/:id suma una unidad del producto.
   increment(itemCart: ItemCart) {
     this.update(this.storeService.addItem(itemCart.item._id));
   }
@@ -68,6 +69,7 @@ export class ShoppingCartComponent implements OnInit {
     this.update(concat(...requests).pipe(last()));
   }
 
+  // Navega y cierra el drawer (el dialog no se cierra solo al cambiar de ruta).
   goToShop() {
     this._router.navigate(['/store/collections/shop']);
     this.dialogRef.close();
@@ -78,6 +80,8 @@ export class ShoppingCartComponent implements OnInit {
     this.dialogRef.close();
   }
 
+  // Ejecuta un cambio del carrito bloqueando los botones y, al terminar,
+  // recarga el carrito del backend (fuente de verdad de cantidades y precios).
   private update(request: Observable<unknown>) {
     this.busy = true;
     request

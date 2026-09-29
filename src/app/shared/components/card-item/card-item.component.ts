@@ -11,6 +11,7 @@ import { shoeImage } from '../../constants/shoe-images';
 export class CardItemComponent {
   @Input() item: Item | undefined;
 
+  // La API no tiene fotos: se elige por nombre de producto (ver shoe-images.ts).
   get imageUrl(): string {
     return shoeImage(this.item);
   }

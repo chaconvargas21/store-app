@@ -8,5 +8,6 @@ import { LoadingService } from '../../services/loading.service';
   styleUrls: ['./loader.component.scss'],
 })
 export class LoaderComponent {
+  // public: el template lee loadingService.loading() directamente.
   constructor(public loadingService: LoadingService) {}
 }

@@ -11,6 +11,8 @@ export const SKIP_LOADING = new HttpContextToken<boolean>(() => false);
 export class LoadingInterceptor implements HttpInterceptor {
   constructor(private loadingService: LoadingService) {}
 
+  // Muestra el loader de página completa mientras dura cada request (finalize
+  // también corre si falla o se cancela, así el contador no queda colgado).
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     if (req.context.get(SKIP_LOADING)) {
       return next.handle(req);

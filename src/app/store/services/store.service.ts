@@ -7,6 +7,8 @@ import { AddItemResponse, GetItemByIdResponse, GetItemsCartShoppingResponse, Get
 import { catchError, map, Observable, of } from 'rxjs';
 import { ConfirmOrderResponse, GetOrderResponse, PaymentResponse, PostOrderPayload, PostOrderResponse } from '../interfaces/order.interface';
 
+// Las llamadas de carrito y orden van con withCredentials: true porque
+// store-back guarda el carrito y la orden en la sesión (cookie de express-session).
 @Injectable({
   providedIn: 'root'
 })

@@ -12,6 +12,8 @@ export class CarouselComponent {
 
   @ViewChild('track') track!: ElementRef<HTMLDivElement>;
 
+  // Desplaza el 80% del ancho visible, para que la última imagen quede a la
+  // vista como referencia de dónde se estaba.
   scroll(direction: 'prev' | 'next'): void {
     const el = this.track.nativeElement;
     const amount = el.clientWidth * 0.8 * (direction === 'next' ? 1 : -1);

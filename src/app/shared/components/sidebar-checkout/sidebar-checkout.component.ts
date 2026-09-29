@@ -43,6 +43,7 @@ export class SidebarCheckoutComponent implements OnInit {
     });
   }
 
+  // Abre el drawer del carrito y, al cerrarlo, recarga el resumen con los cambios.
   editCart() {
     this.dialog
       .open(ShoppingCartComponent, CART_DRAWER_CONFIG)
