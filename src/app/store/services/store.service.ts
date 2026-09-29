@@ -1,6 +1,7 @@
 import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
+import { AuthService } from 'src/app/auth/services/auth.service';
 import { SKIP_LOADING } from 'src/app/shared/interceptors/loading.interceptor';
 import { AddItemResponse, GetItemByIdResponse, GetItemsCartShoppingResponse, GetItemsResponse, Item, RemoveItemResponse } from 'src/app/shared/interfaces/item.interface';
 import { catchError, map, Observable, of } from 'rxjs';
@@ -12,11 +13,11 @@ import { ConfirmOrderResponse, GetOrderResponse, PaymentResponse, PostOrderPaylo
 export class StoreService {
   private baseUrl: string = environment.baseUrl;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private auth: AuthService) { }
 
   // POST/PATCH /order requieren el JWT en el header x-token (no Authorization).
   private authHeaders(): HttpHeaders {
-    return new HttpHeaders().set('x-token', localStorage.getItem('token') || '');
+    return new HttpHeaders().set('x-token', this.auth.getToken());
   }
 
   // Si falla, lista vacía: el catálogo simplemente no muestra productos.

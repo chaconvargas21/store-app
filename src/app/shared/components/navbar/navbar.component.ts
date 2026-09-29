@@ -27,7 +27,7 @@ export class NavbarComponent {
 
   // Sesión "activa" = hay token guardado; authGuard lo valida recién al pagar.
   get isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    return !!this.authService.getToken();
   }
 
   constructor(

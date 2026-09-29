@@ -9,14 +9,27 @@ import { AuthResponse, User } from '../interfaces/auth.interface';
   providedIn: 'root',
 })
 export class AuthService {
+  // Clave del JWT en localStorage; solo este servicio la conoce.
+  private static readonly TOKEN_KEY = 'token';
   private baseUrl: string = environment.baseUrl;
+  // Lo carga validateToken (vía authGuard); vacío antes de pasar por el guard.
   private _user!: User;
 
+  // Copia: los componentes no pueden modificar el usuario del servicio.
   get user() {
     return { ...this._user };
   }
 
   constructor(private http: HttpClient) {}
+
+  // JWT guardado, o '' si no hay sesión. store-back lo espera en el header x-token.
+  getToken(): string {
+    return localStorage.getItem(AuthService.TOKEN_KEY) || '';
+  }
+
+  private setToken(token: string) {
+    localStorage.setItem(AuthService.TOKEN_KEY, token);
+  }
 
   // El backend responde { msg } (email duplicado, credenciales incorrectas) o,
   // si falla express-validator, { errors: { campo: { msg } } }.
@@ -38,8 +51,9 @@ export class AuthService {
 
     return this.http.post<AuthResponse>(url, body).pipe(
       tap(({ ok, token }) => {
+        // Con ok: true el backend siempre manda el token.
         if (ok) {
-          localStorage.setItem('token', token!);
+          this.setToken(token!);
         }
       }),
       map(() => true as const),
@@ -58,7 +72,7 @@ export class AuthService {
     return this.http.post<AuthResponse>(url, body).pipe(
       tap(({ ok, token }) => {
         if (ok) {
-          localStorage.setItem('token', token!);
+          this.setToken(token!);
         }
       }),
       map(() => true as const),
@@ -66,15 +80,16 @@ export class AuthService {
     );
   }
 
+  // Renueva el JWT contra /auth/renew y carga el usuario (nombre y email los
+  // usa el checkout). Devuelve false si no hay token o expiró: el backend
+  // responde 401 y catchError lo convierte en false (lo usa authGuard).
   validateToken(): Observable<boolean> {
     const url = `${this.baseUrl}/auth/renew`;
-    const headers = new HttpHeaders().set(
-      'x-token',
-      localStorage.getItem('token') || ''
-    );
+    const headers = new HttpHeaders().set('x-token', this.getToken());
     return this.http.get<AuthResponse>(url, {headers}).pipe(
       map((resp)=> {
-        localStorage.setItem('token', resp.token!);
+        // Token nuevo con el vencimiento extendido.
+        this.setToken(resp.token!);
         this._user = {
           name: resp.name!,
           uid: resp.uid!,
@@ -86,6 +101,8 @@ export class AuthService {
     );
   }
 
+  // Cierra la sesión del lado del cliente (el JWT no se invalida en el backend).
+  // Limpia todo el localStorage: hoy el token es lo único que guarda la app.
   logout() {
     localStorage.clear();
   }
