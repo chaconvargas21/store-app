@@ -96,7 +96,7 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.contactForm = this.fb.group({
-      // AuthGuard ya validó el token y dejó el usuario en AuthService.
+      // authGuard ya validó el token y dejó el usuario en AuthService.
       receipt_email: [
         this.auth.user.email ?? '',
         [Validators.required, Validators.pattern(this.validator.emailPattern)],

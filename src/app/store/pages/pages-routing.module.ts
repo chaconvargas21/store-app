@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { CheckoutComponent } from './checkout/checkout.component';
 import { ItemComponent } from './item/item.component';
 import { CollectionComponent } from './collection/collection.component';
-import { AuthGuard } from '../../auth/guards/auth.guard';
+import { authGuard } from '../../auth/guards/auth.guard';
 
 const routes: Routes = [
   {
@@ -11,13 +11,14 @@ const routes: Routes = [
     component: CollectionComponent
   },
   {
-    // El backend exige JWT para iniciar y confirmar el pago; el catalogo y
-    // el carrito siguen siendo anonimos.
+    // El backend exige JWT para iniciar y confirmar el pago; el catálogo y
+    // el carrito siguen siendo anónimos.
     path: 'checkout',
     component: CheckoutComponent,
-    canActivate: [AuthGuard]
+    canActivate: [authGuard]
   },
   {
+    // Detalle de producto: va al final para que no capture 'collection' ni 'checkout'.
     path: ':id',
     component: ItemComponent
   }

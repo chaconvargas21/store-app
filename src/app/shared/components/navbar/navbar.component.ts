@@ -25,7 +25,7 @@ export class NavbarComponent {
     el?.nativeElement.focus();
   }
 
-  // Sesión "activa" = hay token guardado; AuthGuard lo valida recién al pagar.
+  // Sesión "activa" = hay token guardado; authGuard lo valida recién al pagar.
   get isLoggedIn(): boolean {
     return !!localStorage.getItem('token');
   }
