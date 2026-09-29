@@ -40,7 +40,7 @@ La app usa **módulos de feature con lazy loading** para organizar el código po
 
 ```
 src/app/
-├── app.module.ts              // Módulo raíz: HTTP client, animaciones, zone.js, LoadingInterceptor
+├── app.module.ts              // Módulo raíz: provideHttpClient, animaciones, zone.js, LoadingInterceptor
 ├── app-routing.module.ts      // Routing raíz con lazy loading
 │
 ├── store/                     // Feature: tienda y catálogo (lazy-loaded)
@@ -58,7 +58,7 @@ src/app/
 │
 ├── auth/                      // Feature: autenticación (lazy-loaded)
 │   ├── services/auth.service.ts
-│   ├── guards/auth.guard.ts  // Protección de rutas (solo se usa en store/checkout)
+│   ├── guards/auth.guard.ts  // authGuard (CanActivateFn funcional; solo se usa en store/checkout)
 │   ├── auth.module.ts
 │   ├── auth-routing.module.ts
 │   └── pages/
@@ -78,7 +78,9 @@ src/app/
     │   └── footer/
     ├── constants/            // Categorías/colecciones y fotos por producto
     ├── interceptors/         // LoadingInterceptor (SKIP_LOADING para omitir el loader)
-    ├── services/             // LoadingService
+    ├── services/             // LoadingService, NotificationService (snackbars)
+    ├── interfaces/           // Producto y carrito (Item, ItemCart y respuestas del API)
+    ├── utils/                // summarizeCart (totales del carrito)
     ├── pages/
     │   └── error-page/       // Página 404
     ├── validators/           // Validadores de formularios
@@ -106,12 +108,13 @@ src/app/
 - `confirmOrder()` — estado en Stripe de la orden actual
 
 Todas las llamadas usan `withCredentials: true` por las cookies de sesión. `postOrder` y `sendPayment`
-además mandan el JWT en el header `x-token` (helper privado `authHeaders()`, que lee `localStorage.token`)
+además mandan el JWT en el header `x-token` (helper privado `authHeaders()`, que usa `AuthService.getToken()`)
 — el backend usa `x-token`, no `Authorization: Bearer`.
 
 **AuthService** (`src/app/auth/services/auth.service.ts`):
-- `login`/`signup` guardan el JWT en `localStorage.token`.
-- `validateToken()` renueva el token contra `GET /auth/renew` (con `x-token`); lo usa `AuthGuard`.
+- `login`/`signup` guardan el JWT en `localStorage.token`. Solo `AuthService` toca esa clave: el resto lee el
+  token con `getToken()`.
+- `validateToken()` renueva el token contra `GET /auth/renew` (con `x-token`); lo usa `authGuard`.
 - `logout()` limpia el `localStorage`.
 
 ## Checkout y pago
@@ -127,9 +130,9 @@ que Stripe.js solo se usa para tokenizar la tarjeta (`STRIPE.createToken`). **No
   una vez cargado) se muestra "Tu carrito está vacío" y los pasos se ocultan con una clase, por lo mismo.
   `shipping.name` es el destinatario (va al `shipping` del PaymentIntent),
   `address.country` es `PE` y `city` = "Distrito, Provincia" (Address no tiene distrito).
-- Solo `store/checkout` está protegida (`canActivate: [AuthGuard]` en `pages-routing.module.ts`); el
+- Solo `store/checkout` está protegida (`canActivate: [authGuard]` en `pages-routing.module.ts`); el
   catálogo y el carrito siguen siendo anónimos, igual que en el backend ("login solo para pagar"). Sin
-  token válido, `AuthGuard` redirige a `/auth`.
+  token válido, `authGuard` redirige a `/auth` (devuelve un `UrlTree`).
 - `postOrder` (`POST /api/order`): 200 guarda el staging de la orden; 401 → "Iniciá sesión para pagar".
 - `sendPayment` (`PATCH /api/order`):
   - **200** con `data.status === "succeeded"` → pagado ("Pago realizado").
@@ -171,16 +174,16 @@ Stripe; tiene que ser de la misma cuenta que la `STRIPE_SK` del backend).
 ### Dependencias importantes
 
 - **RxJS 7.8**: `Observable`, `map`, `catchError`, `of`
-- **Stripe.js**: tokenización de tarjetas en el checkout
-- **MatSnackBar** (Angular Material): mensajes de feedback al usuario (también los errores de `login`/`sign-in`); el checkout usa el helper `notify(message, type)` con las clases globales `snackbar-success`/`snackbar-danger` (`src/sass/styles.scss`).
+- **Stripe.js**: tokenización de tarjetas en el checkout. Se carga con `<script>` en `index.html`; `@stripe/stripe-js` solo aporta los tipos (`import type`).
+- **MatSnackBar** (Angular Material): mensajes de feedback al usuario (también los errores de `login`/`sign-in`); todos pasan por `NotificationService.success/danger(message, duration?)` (`shared/services/`), que aplica las clases globales `snackbar-success`/`snackbar-danger` (`src/sass/styles.scss`).
 - **Angular Material y CDK**: componentes de UI y accesibilidad
 
 ## Tipado
 
 - **TypeScript 5.9** con strict mode (ver schematics de `angular.json`)
 - Las **interfaces** viven junto a cada feature:
-  - `src/app/store/interfaces/item.interface.ts` — tipos de producto/carrito
-  - `src/app/shared/interfaces/item.interface.ts`
+  - `src/app/shared/interfaces/item.interface.ts` — producto/carrito (única definición; la usan store y shared)
+  - `src/app/store/interfaces/order.interface.ts` — contrato de `/api/order` (payload, orden de la sesión, pago)
   - `src/app/auth/interfaces/auth.interface.ts`
 
 ## Patrones comunes
@@ -219,7 +222,7 @@ en la sesión (cookie de `express-session`).
 - **Pestaña Network**: si fallan las llamadas al API, verificar que `baseUrl` sea el correcto.
 - **Diferencias entre entornos**: si `ng serve` funciona pero `npm run build:prod` no, revisar
   `environment.prod.ts`.
-- **Guards**: `AuthGuard` se aplica solo a `store/checkout` (`pages-routing.module.ts`); en
+- **Guards**: `authGuard` se aplica solo a `store/checkout` (`pages-routing.module.ts`); en
   `app-routing.module.ts` está comentado a propósito para que el resto de `store` sea anónimo.
 - **401 en el checkout**: verificar que exista `localStorage.token` y que la request lleve `x-token`.
 - **CORS**: el backend solo acepta los orígenes `http://localhost:4200` y
