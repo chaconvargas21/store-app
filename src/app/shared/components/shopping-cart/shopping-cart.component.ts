@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { Observable, concat, finalize, last } from 'rxjs';
 import { StoreService } from '../../../store/services/store.service';
 import { shoeImage } from '../../constants/shoe-images';
+import { summarizeCart } from '../../utils/cart-summary';
 
 // Drawer lateral derecho; los estilos del panel están en `.cart-drawer` (styles.scss).
 export const CART_DRAWER_CONFIG: MatDialogConfig = {
@@ -42,10 +43,10 @@ export class ShoppingCartComponent implements OnInit {
   getItemsShoppingCart() {
     this.storeService.getItemsCartShopping().subscribe((resp) => {
       this.items = resp.items;
-      this.totalQuantity = resp.items.reduce((sum, i) => sum + i.quantity, 0);
-      // Se suma en el cliente: el totalPrice de store-back suma el precio de
-      // línea (no el unitario) en cada add, así que se infla con cantidad > 1.
-      this.totalPrice = resp.items.reduce((sum, i) => sum + i.price, 0);
+      // No se usa resp.totalPrice: ver summarizeCart.
+      const summary = summarizeCart(resp.items);
+      this.totalQuantity = summary.totalQuantity;
+      this.totalPrice = summary.totalPrice;
     });
   }
 

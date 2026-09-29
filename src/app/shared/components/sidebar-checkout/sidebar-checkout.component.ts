@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ItemCart } from '../../interfaces/item.interface';
 import { StoreService } from '../../../store/services/store.service';
 import { shoeImage } from '../../constants/shoe-images';
+import { summarizeCart } from '../../utils/cart-summary';
 import {
   CART_DRAWER_CONFIG,
   ShoppingCartComponent,
@@ -35,10 +36,10 @@ export class SidebarCheckoutComponent implements OnInit {
     this.storeService.getItemsCartShopping().subscribe((resp) => {
       this.items = resp.items;
       this.loaded = true;
-      this.totalQuantity = resp.items.reduce((sum, i) => sum + i.quantity, 0);
-      // Igual que ShoppingCartComponent: el totalPrice de store-back se infla
-      // con cantidad > 1, así que se suma el precio de cada línea.
-      this.totalPrice = resp.items.reduce((sum, i) => sum + i.price, 0);
+      // No se usa resp.totalPrice: ver summarizeCart.
+      const summary = summarizeCart(resp.items);
+      this.totalQuantity = summary.totalQuantity;
+      this.totalPrice = summary.totalPrice;
     });
   }
 
