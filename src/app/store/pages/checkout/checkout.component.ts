@@ -8,12 +8,16 @@ import { AuthService } from 'src/app/auth/services/auth.service';
 import { SidebarCheckoutComponent } from 'src/app/shared/components/sidebar-checkout/sidebar-checkout.component';
 import { environment } from '../../../../environments/environment';
 import { StoreService } from '../../services/store.service';
-
-declare global {
-  interface Window {
-    Stripe?: any;
-  }
-}
+import { PostOrderPayload } from '../../interfaces/order.interface';
+// Solo tipos: Stripe.js se carga desde js.stripe.com en index.html (Stripe
+// exige que no se empaquete), y el paquete declara `window.Stripe`.
+import type {
+  Stripe,
+  StripeCardCvcElement,
+  StripeCardExpiryElement,
+  StripeCardNumberElement,
+  StripeElementChangeEvent,
+} from '@stripe/stripe-js';
 
 type Step = 'datos' | 'entrega' | 'pago';
 type CardField = 'cardNumber' | 'cardExpiry' | 'cardCvc';
@@ -33,10 +37,14 @@ const DEPARTMENTS = [
   styleUrls: ['./checkout.component.scss'],
 })
 export class CheckoutComponent implements OnInit, AfterViewInit {
+  // static: true porque el sidebar no está dentro de un *ngIf: queda disponible
+  // desde ngOnInit y `cartEmpty` lo puede leer en el primer render.
   @ViewChild(SidebarCheckoutComponent, { static: true }) sidebar?: SidebarCheckoutComponent;
 
-  private readonly STRIPE: any;
-  private cardNumber: any;
+  private readonly STRIPE: Stripe;
+  // createToken necesita solo el campo del número: Stripe junta los tres
+  // campos montados con el mismo `elements`.
+  private cardNumber!: StripeCardNumberElement;
 
   departments = DEPARTMENTS;
   step: Step = 'datos';
@@ -82,7 +90,8 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     private auth: AuthService,
     private snackBar: MatSnackBar
   ) {
-    this.STRIPE = window.Stripe(environment.stripe_pk);
+    // window.Stripe existe si cargó el <script> de index.html.
+    this.STRIPE = window.Stripe!(environment.stripe_pk);
   }
 
   ngOnInit() {
@@ -98,12 +107,14 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     this.deliveryForm = this.fb.group({
       firstName: [firstName, [Validators.required, Validators.pattern(this.validator.namePattern)]],
       lastName: [rest.join(' '), [Validators.required, Validators.pattern(this.validator.namePattern)]],
+      // Celular peruano: 9 dígitos empezando por 9 (el +51 se agrega al enviar).
       phone: ['', [Validators.required, Validators.pattern(/^9\d{8}$/)]],
       line1: ['', [Validators.required, notBlank]],
       line2: [''],
       state: ['', Validators.required],
       province: ['', [Validators.required, notBlank]],
       district: ['', [Validators.required, notBlank]],
+      // Opcional; los códigos postales del Perú tienen 5 dígitos.
       postal_code: ['', Validators.pattern(/^\d{5}$/)],
     });
 
@@ -114,19 +125,24 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     this.loadDetail();
   }
 
+  // Los contenedores #cardNumber/#cardExpiry/#cardCvc tienen que existir en el
+  // DOM para montar los iframes de Stripe; por eso el paso de pago usa [hidden].
   ngAfterViewInit() {
     this.createStripeElements();
   }
 
+  // Para el template: marca el campo en rojo solo después de que el usuario lo tocó.
   invalid(form: FormGroup, field: string): boolean {
     const control = form.get(field);
     return !!control && control.invalid && control.touched;
   }
 
+  // Vuelve a un paso anterior del acordeón (los datos ya cargados se conservan).
   goTo(step: Step) {
     this.step = step;
   }
 
+  // Paso 1 → 2: solo valida el email; todavía no se llama al backend.
   submitContact() {
     if (this.contactForm.invalid) {
       this.contactForm.markAllAsTouched();
@@ -143,7 +159,7 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
       return;
     }
     const d = this.deliveryForm.value;
-    const payload = {
+    const payload: PostOrderPayload = {
       firstName: d.firstName.trim(),
       lastName: d.lastName.trim(),
       receipt_email: this.contactForm.value.receipt_email,
@@ -178,11 +194,14 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     }
   }
 
+  // Propone el nombre del destinatario como titular, sin pisar lo que el usuario escribió.
   private prefillCardHolder() {
     const holder = this.paymentForm.get('cardHolder')!;
     if (!holder.value && this.deliveryForm.valid) holder.setValue(this.fullName);
   }
 
+  // Crea y monta los tres campos de tarjeta (iframes de Stripe) con el estilo
+  // de los inputs de la app, y registra su estado de validación.
   private createStripeElements() {
     const style = {
       base: {
@@ -196,7 +215,7 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     const fonts = [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap' }];
     const elements = this.STRIPE.elements({ fonts, locale: 'es' });
 
-    const fields: Record<CardField, any> = {
+    const fields: Record<CardField, StripeCardNumberElement | StripeCardExpiryElement | StripeCardCvcElement> = {
       cardNumber: elements.create('cardNumber', { style, placeholder: '0000 0000 0000 0000', showIcon: true }),
       cardExpiry: elements.create('cardExpiry', { style, placeholder: 'MM/AA' }),
       cardCvc: elements.create('cardCvc', { style, placeholder: '000' }),
@@ -204,14 +223,18 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
 
     (Object.keys(fields) as CardField[]).forEach((name) => {
       fields[name].mount(`#${name}`);
-      fields[name].on('change', ({ complete, error }: any) => {
+      // El `on` de cada tipo de campo es una sobrecarga distinta; el evento
+      // `change` de los tres comparte la forma de StripeElementChangeEvent.
+      (fields[name] as StripeCardNumberElement).on('change', ({ complete, error }: StripeElementChangeEvent) => {
         this.cardState[name] = complete;
         this.cardErrors = { ...this.cardErrors, [name]: error?.message };
       });
     });
-    this.cardNumber = fields.cardNumber;
+    this.cardNumber = fields.cardNumber as StripeCardNumberElement;
   }
 
+  // Al entrar al checkout: si la orden de la sesión ya se cobró, bloquea el
+  // pago para no cobrar dos veces (hasta que postOrder arranque otra orden).
   async loadDetail() {
     try {
       // Solo una orden ya cobrada tiene stripeId; el staging de postOrder no,
@@ -224,8 +247,9 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
           this.notify('La orden de esta sesión ya fue pagada', 'danger');
         }
       }
-    } catch (e) {
-      console.log(e);
+    } catch {
+      // getOrder y confirmOrder ya devuelven un valor por defecto si falla la
+      // request; si igual falla, el pago simplemente no queda bloqueado.
     }
   }
 
@@ -242,14 +266,14 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     const { token, error } = await this.STRIPE.createToken(this.cardNumber, {
       name: this.paymentForm.value.cardHolder.trim(),
     });
-    if (error) {
+    if (error || !token) {
       this.paying = false;
-      this.notify(error.message, 'danger');
+      this.notify(error?.message ?? 'No se pudo validar la tarjeta', 'danger');
       return;
     }
 
     try {
-      const { data } = await this.store.sendPayment(token.id).toPromise();
+      const { data } = (await this.store.sendPayment(token.id).toPromise())!;
       if (data.status === 'succeeded') {
         this.paid = true;
         this.sidebar?.getItemsShoppingCart();
@@ -279,6 +303,7 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     }
   }
 
+  // Snackbar de feedback; `type` elige el color (clases globales de styles.scss).
   private notify(message: string, type?: 'success' | 'danger') {
     this.snackBar.open(message, 'Cerrar', {
       duration: 5000,
@@ -287,6 +312,7 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
   }
 }
 
+// Rechaza textos que son solo espacios (Validators.required los deja pasar).
 function notBlank(control: AbstractControl) {
   return typeof control.value === 'string' && !control.value.trim() ? { blank: true } : null;
 }

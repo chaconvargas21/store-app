@@ -4,6 +4,7 @@ import { environment } from 'src/environments/environment';
 import { SKIP_LOADING } from 'src/app/shared/interceptors/loading.interceptor';
 import { AddItemResponse, GetItemByIdResponse, GetItemsCartShoppingResponse, GetItemsResponse, Item, RemoveItemResponse } from 'src/app/shared/interfaces/item.interface';
 import { catchError, map, Observable, of } from 'rxjs';
+import { ConfirmOrderResponse, GetOrderResponse, PaymentResponse, PostOrderPayload, PostOrderResponse } from '../interfaces/order.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -68,27 +69,27 @@ export class StoreService {
 
   // { order } es la orden de la sesión: el staging de postOrder (sin stripeId)
   // o, tras un pago exitoso, la Order ya pagada (con stripeId).
-  getOrder(): Observable<{ order: any }> {
-    return this.http.get<{ order: any }>(`${this.baseUrl}/order/`, {withCredentials: true}).pipe(
+  getOrder(): Observable<GetOrderResponse> {
+    return this.http.get<GetOrderResponse>(`${this.baseUrl}/order/`, {withCredentials: true}).pipe(
       catchError(() => of({ order: null }))
     );
   }
 
   // Sin catchError: el componente necesita el status HTTP (401 sin sesion).
-  postOrder(data: { firstName: string, lastName: string, receipt_email: string, shipping: any }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/order/`, data, {withCredentials: true, headers: this.authHeaders()});
+  postOrder(data: PostOrderPayload): Observable<PostOrderResponse> {
+    return this.http.post<PostOrderResponse>(`${this.baseUrl}/order/`, data, {withCredentials: true, headers: this.authHeaders()});
   }
 
   // Sin catchError: el componente distingue 402 (tarjeta rechazada, el
   // carrito se conserva para reintentar) de 401 y de otros errores.
-  sendPayment(token: string): Observable<any> {
-    return this.http.patch(`${this.baseUrl}/order/`, {token}, {withCredentials: true, headers: this.authHeaders()});
+  sendPayment(token: string): Observable<PaymentResponse> {
+    return this.http.patch<PaymentResponse>(`${this.baseUrl}/order/`, {token}, {withCredentials: true, headers: this.authHeaders()});
   }
 
   // Estado del PaymentIntent en Stripe. Solo tiene sentido si la orden de la
   // sesión tiene stripeId; si no, el backend responde 500 { error }.
-  confirmOrder(): Observable<{ status: string | null }> {
-    return this.http.get<{ status: string }>(`${this.baseUrl}/order/confirm`, {withCredentials: true}).pipe(
+  confirmOrder(): Observable<ConfirmOrderResponse> {
+    return this.http.get<ConfirmOrderResponse>(`${this.baseUrl}/order/confirm`, {withCredentials: true}).pipe(
       catchError(() => of({ status: null }))
     );
   }
