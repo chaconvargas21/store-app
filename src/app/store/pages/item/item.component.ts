@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, switchMap } from 'rxjs/operators';
-import { Item } from '../../interfaces/item.interface';
+import { Item } from '../../../shared/interfaces/item.interface';
 import { StoreService } from '../../services/store.service';
 import { shoeImage } from '../../../shared/constants/shoe-images';
 
@@ -30,13 +31,20 @@ export class ItemComponent {
     private storeService: StoreService,
     private snackBar: MatSnackBar
   ) {
+    // switchMap cancela la request anterior si se navega a otro producto sin
+    // salir del componente; takeUntilDestroyed corta la suscripción a `params`
+    // (que nunca completa) al destruirlo.
     this.activatedRoute.params
-      .pipe(switchMap(({ id }) => this.storeService.getItemById(id)))
+      .pipe(
+        switchMap(({ id }) => this.storeService.getItemById(id)),
+        takeUntilDestroyed()
+      )
       .subscribe((resp) => {
         this.item = resp;
       });
   }
 
+  // Agrega una unidad al carrito de la sesión y avisa el resultado con un snackbar.
   addItem() {
     if (!this.item || this.soldOut) return;
     this.adding = true;
