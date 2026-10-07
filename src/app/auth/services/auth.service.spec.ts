@@ -9,10 +9,16 @@ describe('AuthService', () => {
   let service: AuthService;
 
   beforeEach(() => {
+    localStorage.removeItem('token');
     TestBed.configureTestingModule({
       providers: [provideHttpClient(), provideHttpClientTesting()],
     });
     service = TestBed.inject(AuthService);
+  });
+
+  afterEach(() => {
+    TestBed.inject(HttpTestingController).verify();
+    localStorage.removeItem('token');
   });
 
   it('should be created', () => {
@@ -34,5 +40,29 @@ describe('AuthService', () => {
     expect(localStorage.getItem('token')).toBe('nuevo');
     localStorage.removeItem('token');
     http.verify();
+  });
+
+  it('logout elimina el JWT y una renovación sin token no autoriza al usuario', () => {
+    localStorage.setItem('token', 'token-anterior');
+    service.logout();
+    expect(service.getToken()).toBe('');
+    let valid: boolean | undefined;
+    service.validateToken().subscribe(value => valid = value);
+    const req = TestBed.inject(HttpTestingController).expectOne(`${environment.baseUrl}/auth/renew`);
+    expect(req.request.headers.get('x-token')).toBe('');
+    req.flush({ msg: 'Token not found' }, { status: 401, statusText: 'Unauthorized' });
+    expect(valid).toBeFalse();
+    expect(service.getToken()).toBe('');
+  });
+
+  it('token expirado produce false y no sustituye el token por uno válido', () => {
+    localStorage.setItem('token', 'token-expirado');
+    let valid: boolean | undefined;
+    service.validateToken().subscribe(value => valid = value);
+    const req = TestBed.inject(HttpTestingController).expectOne(`${environment.baseUrl}/auth/renew`);
+    expect(req.request.headers.get('x-token')).toBe('token-expirado');
+    req.flush({ msg: 'Token expired' }, { status: 401, statusText: 'Unauthorized' });
+    expect(valid).toBeFalse();
+    expect(service.getToken()).toBe('token-expirado');
   });
 });

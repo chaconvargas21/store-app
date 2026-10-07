@@ -73,6 +73,14 @@ describe('CheckoutComponent', () => {
     return snackBar.open.calls.mostRecent().args[0];
   }
 
+  function fillDelivery() {
+    component.deliveryForm.setValue({
+      firstName: 'Ana', lastName: 'Pérez', phone: '912345678',
+      line1: 'Calle QA 1', line2: '', state: 'Lima', province: 'Lima',
+      district: 'Miraflores', postal_code: '15001',
+    });
+  }
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -168,5 +176,119 @@ describe('CheckoutComponent', () => {
     await component.loadDetail();
 
     expect(component.paymentBlocked).toBeTrue();
+  });
+
+  it('error de tokenización conserva datos y permite reintentar sin enviar pago', async () => {
+    fillDelivery();
+    fillCard();
+    const delivery = component.deliveryForm.value;
+    const contact = component.contactForm.value;
+    stripe.createToken.and.resolveTo({ error: { message: 'No se pudo validar la tarjeta' } });
+    await component.initPay();
+    expect(store.sendPayment).not.toHaveBeenCalled();
+    expect(component.paying).toBeFalse();
+    expect(component.paid).toBeFalse();
+    expect(component.paymentBlocked).toBeFalse();
+    expect(component.deliveryForm.value).toEqual(delivery);
+    expect(component.contactForm.value).toEqual(contact);
+    expect(lastMessage()).toBe('No se pudo validar la tarjeta');
+    stripe.createToken.and.resolveTo({ token: { id: 'tok_retry' } });
+    store.sendPayment.and.returnValue(of({ data: { status: 'succeeded' } }));
+    await component.initPay();
+    expect(store.sendPayment).toHaveBeenCalledOnceWith('tok_retry');
+    expect(component.paid).toBeTrue();
+  });
+
+  it('respuesta sin token no envía pago y libera el estado de procesamiento', async () => {
+    fillCard();
+    stripe.createToken.and.resolveTo({});
+    await component.initPay();
+    expect(store.sendPayment).not.toHaveBeenCalled();
+    expect(component.paying).toBeFalse();
+    expect(lastMessage()).toBe('No se pudo validar la tarjeta');
+  });
+
+  // Paso 7 / TOKEN-01: deuda aceptada, conservar aserciones de recuperación.
+  xit('rechazo de la promesa de tokenización se informa y libera el estado de procesamiento', async () => {
+    fillCard();
+    stripe.createToken.and.rejectWith(new Error('Stripe no disponible'));
+    await expectAsync(component.initPay()).toBeResolved();
+    expect(component.paying).toBeFalse();
+    expect(component.paid).toBeFalse();
+    expect(store.sendPayment).not.toHaveBeenCalled();
+  });
+
+  it('HTTP 500 conserva formularios y permite un pago posterior', async () => {
+    fillDelivery();
+    fillCard();
+    const contact = component.contactForm.value;
+    const delivery = component.deliveryForm.value;
+    const payment = component.paymentForm.value;
+    store.sendPayment.and.returnValue(paymentError(500));
+    await component.initPay();
+    expect(component.paying).toBeFalse();
+    expect(component.paid).toBeFalse();
+    expect(component.paymentBlocked).toBeFalse();
+    expect(component.contactForm.value).toEqual(contact);
+    expect(component.deliveryForm.value).toEqual(delivery);
+    expect(component.paymentForm.value).toEqual(payment);
+    expect(lastMessage()).toContain('Algo ocurrió');
+    store.sendPayment.and.returnValue(of({ data: { status: 'succeeded' } }));
+    await component.initPay();
+    expect(component.paid).toBeTrue();
+    expect(store.sendPayment).toHaveBeenCalledTimes(2);
+  });
+
+  [
+    ['firstName', 'Ana123'], ['lastName', ''], ['phone', '123'],
+    ['line1', '   '], ['state', ''], ['province', '   '],
+    ['district', '   '], ['postal_code', '123'],
+  ].forEach(([field, value]) => {
+    it(`entrega inválida en ${field} no persiste ni habilita el pago`, async () => {
+      fillDelivery();
+      component.goTo('entrega');
+      component.deliveryForm.get(field)!.setValue(value);
+      await component.submitDelivery();
+      expect(component.deliveryForm.invalid).toBeTrue();
+      expect(component.deliveryForm.get(field)!.touched).toBeTrue();
+      expect(store.postOrder).not.toHaveBeenCalled();
+      expect(component.step).toBe('entrega');
+      expect(component.savingDelivery).toBeFalse();
+    });
+  });
+
+  it('correo inválido no permite avanzar a entrega', () => {
+    component.contactForm.setValue({ receipt_email: 'correo-invalido' });
+    component.submitContact();
+    expect(component.step).toBe('datos');
+    expect(component.contactForm.get('receipt_email')!.touched).toBeTrue();
+    expect(store.postOrder).not.toHaveBeenCalled();
+  });
+
+  it('entrega válida envía solo contacto y dirección y habilita el paso de pago', async () => {
+    fillDelivery();
+    store.postOrder.and.returnValue(of({} as any));
+    await component.submitDelivery();
+    expect(store.postOrder).toHaveBeenCalledOnceWith({
+      firstName: 'Ana', lastName: 'Pérez', receipt_email: 'ana@test.com',
+      shipping: { name: 'Ana Pérez', phone: '+51 912345678', address: {
+        country: 'PE', state: 'Lima', city: 'Miraflores, Lima', postal_code: '15001',
+        line1: 'Calle QA 1', line2: '',
+      } },
+    });
+    expect(component.step).toBe('pago');
+    expect(component.savingDelivery).toBeFalse();
+  });
+
+  it('fallo al guardar entrega conserva la dirección y no habilita el pago', async () => {
+    fillDelivery();
+    component.goTo('entrega');
+    const delivery = component.deliveryForm.value;
+    store.postOrder.and.returnValue(paymentError(500));
+    await component.submitDelivery();
+    expect(component.step).toBe('entrega');
+    expect(component.savingDelivery).toBeFalse();
+    expect(component.deliveryForm.value).toEqual(delivery);
+    expect(lastMessage()).toBe('No se pudo guardar la dirección');
   });
 });
