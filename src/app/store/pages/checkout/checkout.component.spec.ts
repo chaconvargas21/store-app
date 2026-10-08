@@ -208,7 +208,7 @@ describe('CheckoutComponent', () => {
     expect(lastMessage()).toBe('No se pudo validar la tarjeta');
   });
 
-  // Paso 7 / TOKEN-01: deuda aceptada, conservar aserciones de recuperación.
+  // Paso 6 / TOKEN-01: deuda aceptada, conservar aserciones de recuperación.
   xit('rechazo de la promesa de tokenización se informa y libera el estado de procesamiento', async () => {
     fillCard();
     stripe.createToken.and.rejectWith(new Error('Stripe no disponible'));

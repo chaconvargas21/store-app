@@ -2,7 +2,7 @@
 
 ## TOKEN-01: rechazo de createToken deja el checkout procesando
 
-- Requerimientos: RF10, RF12, RNF04. Estado: deuda aceptada; corrección en paso 7.
+- Requerimientos: RF10, RF12, RNF04. Estado: deuda aceptada; corrección en paso 6.
 - Prueba: `src/app/store/pages/checkout/checkout.component.spec.ts`,
   `rechazo de la promesa de tokenización se informa y libera el estado de procesamiento`.
 - Preparación: tarjeta completa con handlers simulados; createToken rechaza su promesa.
@@ -15,4 +15,4 @@
 - Corregir requiere incluir la tokenización en el manejo de errores y garantizar la liberación
   del estado. No se realizaron llamadas reales a Stripe.
 - Por instrucción del usuario, el caso se conserva como `xit` con sus aserciones originales.
-  Es pendiente, no cobertura aprobada. Reactivarlo al realizar la corrección del paso final.
+  Es pendiente, no cobertura aprobada. Reactivarlo al realizar la corrección del paso 6.
