@@ -263,11 +263,3 @@ sin `src/test.ts`: el builder encuentra los `*.spec.ts` e inicializa el `TestBed
   imagen del runner rompe el build, fijar `runs-on: ubuntu-24.04` mientras se corrige.
 - Si el build pasa local pero falla en CI, reproducir con instalación limpia (`rm -rf node_modules && npm ci`):
   un `node_modules` viejo puede esconder dependencias que ya no compilan.
-
-## Pendientes
-
-Deuda técnica de este repo, cada una con su solución y prioridad (**alta**: afecta a producción;
-**media**: riesgo acotado o con fecha; **baja**: sin impacto visible). La que se resuelve en `store-back` o
-`worker-service` vive en el `CLAUDE.md` de ese repo.
-
-Nada pendiente.
